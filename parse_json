@@ -4,6 +4,7 @@ import json
 import sys
 import questionary
 import subprocess
+import paramiko
 from typing import Dict, List, Any, Tuple
 
 
@@ -171,9 +172,132 @@ def extract_ip_addresses(data: Any, ip_info: List[Dict] = None) -> List[Dict]:
     return ip_info
 
 
+def ssh_connect(host: str, username: str, password: str = None, key_path: str = None, port: int = 22) -> paramiko.SSHClient:
+    """
+    Connect to a remote host via SSH.
+    
+    Args:
+        host: Remote host IP address or hostname
+        username: SSH username
+        password: SSH password (optional)
+        key_path: Path to private key file (optional)
+        port: SSH port (default: 22)
+        
+    Returns:
+        SSHClient object if connection successful, None otherwise
+    """
+    client = paramiko.SSHClient()
+    client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+    
+    try:
+        if key_path:
+            key = paramiko.RSAKey.from_private_key_file(key_path)
+            client.connect(hostname=host, port=port, username=username, pkey=key, timeout=10)
+        else:
+            client.connect(hostname=host, port=port, username=username, password=password, timeout=10)
+        
+        print(f"Successfully connected to {host}")
+        return client
+    except Exception as e:
+        print(f"SSH connection failed: {e}")
+        return None
+
+
+def execute_ssh_command(client: paramiko.SSHClient, command: str) -> Tuple[str, str, int]:
+    """
+    Execute a command on a remote host via SSH.
+    
+    Args:
+        client: SSHClient object
+        command: Command to execute
+        
+    Returns:
+        Tuple containing (stdout, stderr, return_code)
+    """
+    try:
+        # Execute the command
+        stdin, stdout, stderr = client.exec_command(command, timeout=30)
+        
+        # Get the return code
+        return_code = stdout.channel.recv_exit_status()
+        
+        # Get output
+        stdout_str = stdout.read().decode('utf-8')
+        stderr_str = stderr.read().decode('utf-8')
+        
+        return stdout_str, stderr_str, return_code
+    except Exception as e:
+        return "", str(e), -1
+
+
+def execute_audit(ip: str, hostname: str) -> None:
+    """
+    Execute a set of audit commands on a remote host via SSH.
+    
+    Args:
+        ip: IP address of the remote host
+        hostname: Hostname of the remote host
+    """
+    print(f"\n{'=' * 60}")
+    print(f"Executing Audit on {hostname} ({ip}):")
+    print(f"{'=' * 60}")
+    
+    # Get SSH credentials
+    ssh_username = questionary.text(f"Enter SSH username for {hostname} ({ip}):").ask()
+    
+    # Ask for authentication method
+    auth_method = questionary.select(
+        f"Select authentication method for {hostname} ({ip}):",
+        choices=["Password", "Private Key"]
+    ).ask()
+    
+    ssh_password = None
+    key_path = None
+    
+    if auth_method == "Password":
+        ssh_password = questionary.password(f"Enter SSH password for {hostname} ({ip}):").ask()
+    else:  # Private Key
+        key_path = questionary.text("Enter path to private key file:").ask()
+    
+    # Connect to SSH
+    ssh_client = ssh_connect(ip, ssh_username, ssh_password, key_path)
+    
+    if ssh_client:
+        # List of audit commands to run
+        audit_commands = [
+            "hostname",
+            "ping -c 4 1.1.1.1",
+            "ifconfig || ip a",
+            "route -n || ip route",
+            "cat /etc/os-release",
+            "uname -a",
+            "uptime"
+        ]
+        
+        # Execute each audit command
+        print("\nExecuting audit commands...")
+        for cmd in audit_commands:
+            print(f"\n--- Command: {cmd} ---")
+            stdout, stderr, return_code = execute_ssh_command(ssh_client, cmd)
+            
+            if return_code == 0:
+                print(stdout)
+            else:
+                print(f"Command failed with error code {return_code}:")
+                if stderr:
+                    print(stderr)
+        
+        # Close SSH connection
+        ssh_client.close()
+        print(f"\nSSH connection to {hostname} closed")
+        print(f"{'=' * 60}")
+    else:
+        print(f"Audit failed: Could not establish SSH connection to {hostname} ({ip})")
+
+
 def run_network_commands(ip_info: List[Dict]) -> None:
     """
-    Run network commands (ping, ip a, route) on each IP address.
+    Run network commands on each IP address.
     
     Args:
         ip_info: List of dictionaries with 'hostname' and 'ip_address' keys
@@ -194,80 +318,31 @@ def run_network_commands(ip_info: List[Dict]) -> None:
     # Let user select which IPs to run commands on
     choices = [f"{item['hostname']} ({item['ip_address']})" for item in ip_info]
     selected = questionary.checkbox(
-        "Select hosts to run commands on:",
+        "Select hosts to audit:",
         choices=choices
     ).ask()
     
     if not selected:
-        print("No hosts selected. Skipping network commands.")
+        print("No hosts selected. Skipping audit.")
         return
     
-    # Extract selected IP addresses
-    selected_ips = []
+    # Extract selected IP addresses and hostnames
+    selected_hosts = []
     for sel in selected:
-        # Extract IP from the selection string (format: "hostname (ip)")
+        # Extract hostname and IP from the selection string (format: "hostname (ip)")
+        hostname = sel.split(" (")[0]
         ip = sel.split("(")[1].rstrip(")")
-        selected_ips.append(ip)
+        selected_hosts.append({"hostname": hostname, "ip_address": ip})
     
-    # Let user select which commands to run
-    commands = ["ping -c 4"]
-    selected_commands = questionary.checkbox(
-        "Select commands to run:",
-        choices=commands
-    ).ask()
-    
-    if not selected_commands:
-        print("No commands selected. Skipping network commands.")
-        return
-    
-    # Run selected commands on selected IPs
-    for ip in selected_ips:
-        hostname = next(item['hostname'] for item in ip_info if item['ip_address'] == ip)
-        
-        print(f"\n{'=' * 60}")
-        print(f"Running commands on {hostname} ({ip}):")
-        print(f"{'=' * 60}")
-        
-        for cmd in selected_commands:
-            # For ping, we append the IP address
-            if cmd.startswith("ping"):
-                full_cmd = f"{cmd} {ip}"
-            else:
-                # For local commands like ip a and route, we run them locally
-                full_cmd = cmd
-                
-            print(f"\n--- Command: {full_cmd} ---")
-            
-            try:
-                # Run the command
-                process = subprocess.run(
-                    full_cmd.split(),
-                    stdout=subprocess.PIPE,
-                    stderr=subprocess.PIPE,
-                    text=True,
-                    timeout=30
-                )
-                
-                # Print command output
-                if process.stdout:
-                    print(process.stdout)
-                
-                # Print error if any
-                if process.returncode != 0:
-                    print(f"Command failed with error code {process.returncode}:")
-                    if process.stderr:
-                        print(process.stderr)
-                    
-            except subprocess.TimeoutExpired:
-                print(f"Command timed out after 30 seconds")
-            except Exception as e:
-                print(f"Error running command: {e}")
+    # Execute audit on each selected host
+    for host in selected_hosts:
+        execute_audit(host["ip_address"], host["hostname"])
 
 
 def main():
     """Main function to run the script."""
     print("=" * 70)
-    print("JSON YN- Dictionary Finder with Network Commands")
+    print("JSON YN- Dictionary Finder with SSH Audit")
     print("=" * 70)
     
     # Get JSON file path
@@ -288,7 +363,7 @@ def main():
     # Extract IP addresses from the selected dictionary
     ip_info = extract_ip_addresses(selected_dict)
     
-    # Run network commands on extracted IP addresses
+    # Run audit on extracted IP addresses
     run_network_commands(ip_info)
     
     # Ask if user wants to save the selected dictionary to a file
@@ -310,3 +385,30 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+
+
+"""
+Key changes:
+
+Modified the run_network_commands() function to:
+
+Remove the action selection questionary
+Directly execute the audit on each selected host
+Update the prompt from "Select hosts to run commands on" to "Select hosts to audit"
+
+
+Kept the execute_audit() function unchanged, which still:
+
+Gets SSH credentials from the user
+Connects to the host via SSH
+Runs a predefined set of audit commands, including pinging 1.1.1.1
+Displays the results of each command
+
+
+Updated the script header from "JSON YN- Dictionary Finder with Network Commands" to "JSON YN- Dictionary Finder with SSH Audit" to better reflect its focused purpose
+
+The script now provides a streamlined workflow focused solely on executing the SSH audit, which includes pinging 1.1.1.1 from the remote machine.
+
+
+"""
