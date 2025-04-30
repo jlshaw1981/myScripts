@@ -420,7 +420,7 @@ The script now provides a streamlined workflow focused solely on executing the S
 {
   "YN-NET-91-vlan-999": {
     "YN_ABC1_KITE1_XBOX": {
-      "Operator": {
+      "Worker": {
         "1": {
           "Hostname": "Test-BOX",
           "ip_address": "192.168.1.162",
@@ -466,7 +466,7 @@ The script now provides a streamlined workflow focused solely on executing the S
   },
   "YN-NET-92-vlan-998": {
     "YN_ABC2_KITE2_XBOX": {
-      "Operator": {
+      "Worker": {
         "1": {
           "Hostname": "Test-BOX8",
           "ip_address": "192.168.1.168",
