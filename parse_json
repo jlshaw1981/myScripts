@@ -154,7 +154,7 @@ def extract_ip_addresses(data: Any, ip_info: List[Dict] = None) -> List[Dict]:
         if "Hostname" in data and "ip_address" in data:
             ip_info.append({
                 "hostname": data["Hostname"],
-                "ip_address": data["ip_address"]
+                "ip_address": data["ip_address"],
             })
         
         # Check all values in this dictionary
@@ -412,3 +412,102 @@ The script now provides a streamlined workflow focused solely on executing the S
 
 
 """
+
+
+
+
+
+{
+  "YN-NET-91-vlan-999": {
+    "YN_ABC1_KITE1_XBOX": {
+      "Operator": {
+        "1": {
+          "Hostname": "Test-BOX",
+          "ip_address": "192.168.1.162",
+          "SON": "10.10.10.10",
+          "Admin_Users": [
+            {
+              "Username": "myuser1",
+              "Password": "mypass66"
+            }
+          ],
+          "Basic_Users": [
+            {
+              "Username": "mypass77",
+              "Password": "mypass89"
+            }
+          ],
+          "Operating_System": "windows",
+          "Created_date": "11 Apr",
+          "Created_by": "happygilmore"
+        },
+        "2": {
+          "Hostname": "Test-BOX7",
+          "ip_address": "192.168.1.163",
+          "SON": "10.10.10.20",
+          "Admin_Users": [
+            {
+              "Username": "myuser909",
+              "Password": "mypass743"
+            }
+          ],
+          "Basic_Users": [
+            {
+              "Username": "mypass123",
+              "Password": "mypass456"
+            }
+          ],
+          "Operating_System": "windows",
+          "Created_date": "11 Apr",
+          "Created_by": "happygilmore"
+        }
+      }
+    }
+  },
+  "YN-NET-92-vlan-998": {
+    "YN_ABC2_KITE2_XBOX": {
+      "Operator": {
+        "1": {
+          "Hostname": "Test-BOX8",
+          "ip_address": "192.168.1.168",
+          "SON": "10.10.10.11",
+          "Admin_Users": [
+            {
+              "Username": "myuser4",
+              "Password": "mypass5"
+            }
+          ],
+          "Basic_Users": [
+            {
+              "Username": "mypass12",
+              "Password": "mypass13"
+            }
+          ],
+          "Operating_System": "ubuntu",
+          "Created_date": "12 Apr",
+          "Created_by": "happygilmore1"
+        },
+        "2": {
+          "Hostname": "Test-BOX9",
+          "ip_address": "192.168.1.169",
+          "SON": "10.10.10.17",
+          "Admin_Users": [
+            {
+              "Username": "myuser3",
+              "Password": "mypass4"
+            }
+          ],
+          "Basic_Users": [
+            {
+              "Username": "mypass7",
+              "Password": "mypass8"
+            }
+          ],
+          "Operating_System": "windowsxp",
+          "Created_date": "12 Apr",
+          "Created_by": "happygilmoress"
+        }
+      }
+    }
+  }
+}
