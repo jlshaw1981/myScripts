@@ -425,28 +425,10 @@ if __name__ == "__main__":
 """
 Key changes:
 
-To enable multithreading in your script, you should use Python's threading module for concurrent SSH operations. 
-Since the script is performing I/O-bound tasks like SSH connections and executing commands remotely, multithreading will allow you to SSH into multiple devices simultaneously without blocking.
-Below is your script with multithreading enabled for the SSH audit section (execute_audit) using threading.Thread:
+Concurrency: Each SSH audit runs in its own thread, so audits happen in parallel, reducing the overall execution time.
 
-Modified the run_network_commands() function to:
+Non-blocking: The main thread is free to continue running while the audit tasks are processed in parallel.ad:
 
-Remove the action selection questionary
-Directly execute the audit on each selected host
-Update the prompt from "Select hosts to run commands on" to "Select hosts to audit"
-
-
-Kept the execute_audit() function unchanged, which still:
-
-Gets SSH credentials from the user
-Connects to the host via SSH
-Runs a predefined set of audit commands, including pinging 1.1.1.1
-Displays the results of each command
-
-
-Updated the script header from "JSON YN- Dictionary Finder with Network Commands" to "JSON YN- Dictionary Finder with SSH Audit" to better reflect its focused purpose
-
-The script now provides a streamlined workflow focused solely on executing the SSH audit, which includes pinging 1.1.1.1 from the remote machine.
 
 
 """
