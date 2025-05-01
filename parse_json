@@ -5,6 +5,7 @@ import sys
 import questionary
 import subprocess
 import paramiko
+import threading
 from typing import Dict, List, Any, Tuple
 
 def require_root():
@@ -342,10 +343,20 @@ def run_network_commands(ip_info: List[Dict]) -> None:
         ip = sel.split("(")[1].rstrip(")")
         selected_hosts.append({"hostname": hostname, "ip_address": ip})
     
-    # Execute audit on each selected host
+    # Create and start threads as well as execute audit on each selected host.
+    #for host in selected_hosts:
+    #    execute_audit(host["ip_address"], host["hostname"])
+    threads = []
     for host in selected_hosts:
-        execute_audit(host["ip_address"], host["hostname"])
+        t = threading.Thread(target=execute_audit, args=(host["ip_address"], host["hostname"]))
+        t.start()
+        threads.append(t)
+    
+    # Wait for all threads to finish
+    for t in threads:
+        t.join()
 
+    print("All audits completed.")
 
 def main():
     """Main function to run the script."""
@@ -413,6 +424,10 @@ if __name__ == "__main__":
 
 """
 Key changes:
+
+To enable multithreading in your script, you should use Python's threading module for concurrent SSH operations. 
+Since the script is performing I/O-bound tasks like SSH connections and executing commands remotely, multithreading will allow you to SSH into multiple devices simultaneously without blocking.
+Below is your script with multithreading enabled for the SSH audit section (execute_audit) using threading.Thread:
 
 Modified the run_network_commands() function to:
 
