@@ -348,43 +348,57 @@ def main():
     # Get JSON file path
     json_path = "path_info.json"
     
-    # Load the JSON data
-    data = load_json_file(json_path)
-    
-    # Find all dictionaries with keys starting with "YN-"
-    yn_dicts = find_yn_dictionaries(data)
-    
-    # Let user select a dictionary
-    path, selected_dict = display_yn_dictionaries(yn_dicts)
-    
-    # Display the selected dictionary
-    display_selected_dictionary(selected_dict)
-    
-    # Extract IP addresses from the selected dictionary
-    ip_info = extract_ip_addresses(selected_dict)
-    
-    # Run audit on extracted IP addresses
-    run_network_commands(ip_info)
-    
-    # Ask if user wants to save the selected dictionary to a file
-    save_to_file = questionary.confirm("Do you want to save the selected dictionary to a file?").ask()
-    
-    if save_to_file:
-        output_path = questionary.text(
-            "Enter output file path:",
-            default="selected_yn_dict.json"
-        ).ask()
-        
-        try:
-            with open(output_path, 'w') as file:
-                json.dump(selected_dict, file, indent=4)
-            print(f"Successfully saved to {output_path}")
-        except Exception as e:
-            print(f"Error saving to file: {e}")
+    try:
+        # Load the JSON data
+        data = load_json_file(json_path)
 
+        # Find all dictionaries with keys starting with "YN-"
+        yn_dicts = find_yn_dictionaries(data)
+
+        # Let user select a dictionary
+        path, selected_dict = display_yn_dictionaries(yn_dicts)
+
+        # Display the selected dictionary
+        display_selected_dictionary(selected_dict)
+
+        # Extract IP addresses from the selected dictionary
+        ip_info = extract_ip_addresses(selected_dict)
+
+        # Run audit on extracted IP addresses
+        run_network_commands(ip_info)
+
+        # Ask if user wants to save the selected dictionary to a file
+        save_to_file = questionary.confirm("Do you want to save the selected dictionary to a file?").ask()
+
+        if save_to_file:
+            output_path = questionary.text(
+                "Enter output file path:",
+                default="selected_yn_dict.json"
+            ).ask()
+
+            try:
+                with open(output_path, 'w') as file:
+                    json.dump(selected_dict, file, indent=4)
+                print(f"Successfully saved to {output_path}")
+            except Exception as e:
+                print(f"Error saving to file: {e}")
+    
+    except KeyboardInterrupt:
+        print("\n\nExecution interrupted by user. Exiting.")
+        sys.exit(0)
 
 if __name__ == "__main__":
-    main()
+    try:
+        while True:
+            main()
+            again = questionary.confirm("Run the script again?").ask()
+            if not again:
+                print("Exiting.")
+                break
+    except KeyboardInterrupt:
+        print("\n\nExecution interrupted by user. Exiting.")
+        sys.exit(0)
+
 
 
 
