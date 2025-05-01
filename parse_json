@@ -7,6 +7,14 @@ import subprocess
 import paramiko
 from typing import Dict, List, Any, Tuple
 
+def require_root():
+    """Ensure the script is run with root privileges."""
+    if os.name != 'nt':  # Only check EUID on Unix-like systems
+        if os.geteuid() != 0:
+            print("Error: This script must be run as root. Try again with 'sudo'.")
+            sys.exit(1)
+    else:
+        print("Warning: Root check is not supported on Windows. Proceeding anyway.")
 
 def load_json_file(file_path: str) -> Dict:
     """
@@ -341,6 +349,7 @@ def run_network_commands(ip_info: List[Dict]) -> None:
 
 def main():
     """Main function to run the script."""
+    require_root()
     print("=" * 70)
     print("JSON YN- Dictionary Finder with SSH Audit")
     print("=" * 70)
