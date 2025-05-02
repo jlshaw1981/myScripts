@@ -423,6 +423,78 @@ if __name__ == "__main__":
 
 
 """
+New changes:
+
+from contextlib import contextmanager
+
+class ThreadManager:
+    def __init__(self):
+        self.threads = []
+
+    def add(self, target, args=()):
+        t = threading.Thread(target=target, args=args)
+        self.threads.append(t)
+
+    def __enter__(self):
+        for t in self.threads:
+            t.start()
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        # Wait for all threads to finish
+        for t in self.threads:
+            try:
+                t.join()
+            except Exception as e:
+                print(f"Error while joining thread {t.name}: {e}")
+
+        if exc_type:
+            print(f"Exception occurred: {exc_val}")
+            return False  # Re-raise the exception
+        return True
+
+-------------------------------------------------------------------------------------------
+
+def run_network_commands(ip_info: List[Dict]) -> None:
+    if not ip_info:
+        print("No IP addresses found in the selected dictionary.")
+        return
+
+    print("\nFound the following hosts and IP addresses:")
+    print("-" * 60)
+    print(f"{'Hostname':<30} {'IP Address':<15}")
+    print("-" * 60)
+    for item in ip_info:
+        print(f"{item['hostname']:<30} {item['ip_address']:<15}")
+    print("-" * 60)
+
+    choices = [f"{item['hostname']} ({item['ip_address']})" for item in ip_info]
+    selected = questionary.checkbox(
+        "Select hosts to audit:",
+        choices=choices
+    ).ask()
+
+    if not selected:
+        print("No hosts selected. Skipping audit.")
+        return
+
+    selected_hosts = []
+    for sel in selected:
+        hostname = sel.split(" (")[0]
+        ip = sel.split("(")[1].rstrip(")")
+        selected_hosts.append({"hostname": hostname, "ip_address": ip})
+
+    with ThreadManager() as tm:
+        for host in selected_hosts:
+            tm.add(target=execute_audit, args=(host["ip_address"], host["hostname"]))
+
+    print("All audits completed.")
+-----------------------------------------------------------------------------------------------------------------
+
+"""
+
+
+"""
 Key changes:
 
 Concurrency: Each SSH audit runs in its own thread, so audits happen in parallel, reducing the overall execution time.
