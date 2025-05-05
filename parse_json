@@ -490,6 +490,57 @@ def run_network_commands(ip_info: List[Dict]) -> None:
             tm.add(target=execute_audit, args=(host["ip_address"], host["hostname"]))
 
     print("All audits completed.")
+
+import paramiko
+from scp import SCPClient
+import os
+import getpass
+
+# Function to copy a file from a remote host to the local machine using SCP
+def scp_copy(remote_host, remote_path, local_path, username, password):
+    try:
+        # Initialize the SSH client
+        ssh = paramiko.SSHClient()
+        
+        # Automatically add the remote host key if missing
+        ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+        
+        # Connect to the remote host
+        print(f"Connecting to {remote_host}...")
+        ssh.connect(remote_host, username=username, password=password)
+        
+        # Create an SCP client for file transfer
+        with SCPClient(ssh.get_transport()) as scp:
+            print(f"Copying file from {remote_host}:{remote_path} to {local_path}...")
+            scp.get(remote_path, local_path)  # Get file from remote host
+            print(f"File copied successfully to {local_path}")
+        
+        # Close the SSH connection
+        ssh.close()
+
+    except Exception as e:
+        print(f"Error: {e}")
+
+# Main function to call the scp_copy function
+def main():
+    # Get the current logged-in user
+    username = os.getlogin()
+    
+    # Use the getpass module to securely input the password
+    password = getpass.getpass(prompt=f"Enter password for {username}: ")
+    
+    # Details for the SCP transfer
+    remote_host = 'remote_host_ip_or_hostname'  # Example: '192.168.1.10'
+    remote_path = '/path/to/remote/file.txt'    # Example: '/home/user/file.txt'
+    local_path = '/path/to/local/destination'   # Example: '/home/localuser/downloads/file.txt'
+    
+    # Call the SCP function to copy the file
+    scp_copy(remote_host, remote_path, local_path, username, password)
+
+# Ensure the script runs from main
+if __name__ == '__main__':
+    main()
+
 -----------------------------------------------------------------------------------------------------------------
 
 """
