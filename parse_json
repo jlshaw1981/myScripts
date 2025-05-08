@@ -579,168 +579,48 @@ def main():
     # Save audit results to file
     save_audit_results(audit_results)
     
-    # Also ask if user wants to save the selected dictionary to a file
-    save_dict_to_file = questionary.confirm("Do you want to save the selected dictionary to a file?").ask()
-    
-    if save_dict_to_file:
-        output_path = questionary.text(
-            "Enter output file path:",
-            default="selected_yn_dict.json"
-        ).ask()
-        
+    print("=" * 70)
+    print("Script execution completed!")
+    print("=" * 70)
+
+
+def run_script():
+    """Function to run the script and then ask if user wants to run again."""
+    while True:
         try:
-            with open(output_path, 'w') as file:
-                json.dump(selected_dict, file, indent=4)
-            print(f"Successfully saved to {output_path}")
+            # Run the main functionality
+            main()
+            
+            # Ask if the user wants to run the script again using questionary
+            run_again = questionary.confirm(
+                "Would you like to run the script again?",
+                default=False
+            ).ask()
+            
+            if not run_again:
+                print("\nExiting program. Goodbye!")
+                break
+            
+            # Add a separator before running again
+            print("\n" + "=" * 70)
+            print("Restarting script...")
+            print("=" * 70 + "\n")
+            
+        except KeyboardInterrupt:
+            print("\nProgram terminated by user.")
+            break
         except Exception as e:
-            print(f"Error saving to file: {e}")
+            print(f"An error occurred: {e}")
+            # Still ask if they want to run again even after an error
+            run_again = questionary.confirm(
+                "An error occurred. Would you like to try running the script again?",
+                default=False
+            ).ask()
+            
+            if not run_again:
+                print("\nExiting program. Goodbye!")
+                break
 
 
 if __name__ == "__main__":
-    main()
-
-"""
-
-Major Improvements:
-
-Parallel SSH Connections:
-
-Added a ThreadPoolExecutor to manage concurrent connections to multiple devices
-Created a run_multithreaded_audit function that handles parallel execution
-Added a queue system to collect results from multiple threads
-
-
-User Control for Concurrency:
-
-Added an option to ask users if they want to use multithreading
-Allows users to specify the maximum number of concurrent connections
-Provides a progress indicator showing how many devices have completed
-
-
-Common Credentials:
-
-For multithreaded mode, users enter credentials once for all devices
-In sequential mode, users can still provide different credentials per device
-
-
-Improved Error Handling:
-
-Better error reporting for SSH connection failures
-Thread-safe output with host identification in log messages
-
-
-
-How the Multithreading Works:
-
-When you select multiple hosts to audit, the script asks if you want to run commands in parallel
-If enabled, you provide a single set of credentials for all devices
-You select how many concurrent connections to use (up to the number of selected devices)
-The script creates a thread pool and submits an audit job for each device
-A progress indicator shows completion status in real-time
-Results from all threads are collected and saved to files when complete
-
-Benefits:
-
-When running on 10 devices, this can be 5-10x faster than sequential execution
-Reduces the total time needed to complete audits across multiple systems
-Still maintains detailed logging and proper error handling
-Gives you the option to fall back to sequential mode if needed
-
-
-"""
-
-
-{
-  "YN-NET-91-vlan-999": {
-    "YN_ABC1_KITE1_XBOX": {
-      "Worker": {
-        "1": {
-          "Hostname": "Test-BOX",
-          "ip_address": "192.168.1.162",
-          "SON": "10.10.10.10",
-          "Admin_Users": [
-            {
-              "Username": "myuser1",
-              "Password": "mypass66"
-            }
-          ],
-          "Basic_Users": [
-            {
-              "Username": "mypass77",
-              "Password": "mypass89"
-            }
-          ],
-          "Operating_System": "windows",
-          "Created_date": "11 Apr",
-          "Created_by": "happygilmore"
-        },
-        "2": {
-          "Hostname": "Test-BOX7",
-          "ip_address": "192.168.1.163",
-          "SON": "10.10.10.20",
-          "Admin_Users": [
-            {
-              "Username": "myuser909",
-              "Password": "mypass743"
-            }
-          ],
-          "Basic_Users": [
-            {
-              "Username": "mypass123",
-              "Password": "mypass456"
-            }
-          ],
-          "Operating_System": "windows",
-          "Created_date": "11 Apr",
-          "Created_by": "happygilmore"
-        }
-      }
-    }
-  },
-  "YN-NET-92-vlan-998": {
-    "YN_ABC2_KITE2_XBOX": {
-      "Worker": {
-        "1": {
-          "Hostname": "Test-BOX8",
-          "ip_address": "192.168.1.168",
-          "SON": "10.10.10.11",
-          "Admin_Users": [
-            {
-              "Username": "myuser4",
-              "Password": "mypass5"
-            }
-          ],
-          "Basic_Users": [
-            {
-              "Username": "mypass12",
-              "Password": "mypass13"
-            }
-          ],
-          "Operating_System": "ubuntu",
-          "Created_date": "12 Apr",
-          "Created_by": "happygilmore1"
-        },
-        "2": {
-          "Hostname": "Test-BOX9",
-          "ip_address": "192.168.1.169",
-          "SON": "10.10.10.17",
-          "Admin_Users": [
-            {
-              "Username": "myuser3",
-              "Password": "mypass4"
-            }
-          ],
-          "Basic_Users": [
-            {
-              "Username": "mypass7",
-              "Password": "mypass8"
-            }
-          ],
-          "Operating_System": "windowsxp",
-          "Created_date": "12 Apr",
-          "Created_by": "happygilmoress"
-        }
-      }
-    }
-  }
-}
+    run_script()
