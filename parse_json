@@ -583,44 +583,14 @@ def main():
     print("Script execution completed!")
     print("=" * 70)
 
-
-def run_script():
-    """Function to run the script and then ask if user wants to run again."""
-    while True:
-        try:
-            # Run the main functionality
-            main()
-            
-            # Ask if the user wants to run the script again using questionary
-            run_again = questionary.confirm(
-                "Would you like to run the script again?",
-                default=False
-            ).ask()
-            
-            if not run_again:
-                print("\nExiting program. Goodbye!")
-                break
-            
-            # Add a separator before running again
-            print("\n" + "=" * 70)
-            print("Restarting script...")
-            print("=" * 70 + "\n")
-            
-        except KeyboardInterrupt:
-            print("\nProgram terminated by user.")
-            break
-        except Exception as e:
-            print(f"An error occurred: {e}")
-            # Still ask if they want to run again even after an error
-            run_again = questionary.confirm(
-                "An error occurred. Would you like to try running the script again?",
-                default=False
-            ).ask()
-            
-            if not run_again:
-                print("\nExiting program. Goodbye!")
-                break
-
-
 if __name__ == "__main__":
-    run_script()
+    try:
+        while True:
+            main()
+            again = questionary.confirm("Run the script again?").ask()
+            if not again:
+                print("Exiting.")
+                break
+    except KeyboardInterrupt:
+        print("\n\nExecution interrupted by user. Exiting.")
+        sys.exit(0)
