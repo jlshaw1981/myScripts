@@ -9,6 +9,69 @@ import time
 import queue
 from concurrent.futures import ThreadPoolExecutor
 from typing import Dict, List, Any, Tuple
+from scp import SCPClient
+
+def require_root():
+    """Ensure the script is run with root privileges."""
+    if os.name != 'nt':  # Only check EUID on Unix-like systems
+        if os.geteuid() != 0:
+            print("Error: This script must be run as root. Try again with 'sudo'.")
+            sys.exit(1)
+    else:
+        print("Warning: Root check is not supported on Windows. Proceeding anyway.")
+
+
+def scp_opsdata(host: str, remote_path: str, local_path: str = '.', username: str = None, 
+               password: str = None, key_path: str = None, port: int = 22) -> bool:
+    """
+    Copy a file from a remote host to the local directory using SCP.
+    
+    Args:
+        host: Remote host IP address or hostname
+        remote_path: Path to the file on the remote host
+        local_path: Local directory to copy the file to (default: current directory)
+        username: SSH username
+        password: SSH password (optional)
+        key_path: Path to private key file (optional)
+        port: SSH port (default: 22)
+        
+    Returns:
+        bool: True if successful, False otherwise
+    """
+    try:
+        # Connect to SSH
+        ssh_client = ssh_connect(host, username, password, key_path, port)
+        
+        if not ssh_client:
+            print(f"SCP failed: Could not establish SSH connection to {host}")
+            return False
+        
+        # Create SCP client
+        with SCPClient(ssh_client.get_transport()) as scp:
+            # Get filename from remote path
+            filename = os.path.basename(remote_path)
+            local_file_path = os.path.join(local_path, filename)
+            
+            # Copy the file
+            print(f"Copying {remote_path} from {host} to {local_file_path}...")
+            scp.get(remote_path, local_file_path)
+            
+            # Verify the file was copied
+            if os.path.exists(local_file_path):
+                file_size = os.path.getsize(local_file_path)
+                print(f"Successfully copied {filename} ({file_size} bytes)")
+                return True
+            else:
+                print(f"File transfer completed but {local_file_path} not found")
+                return False
+    
+    except Exception as e:
+        print(f"SCP transfer failed: {e}")
+        return False
+    finally:
+        # Close SSH connection if it exists
+        if 'ssh_client' in locals() and ssh_client:
+            ssh_client.close()
 
 
 def load_json_file(file_path: str) -> Dict:
@@ -544,19 +607,76 @@ def save_audit_results(audit_results: List[Dict]) -> None:
                         
                         file.write("\n" + "-" * 40 + "\n\n")
                 
-                print(f"Successfully saved audit results to {filepath}")
+                print(f"Successfully saved audit results to filename {filepath}")
             except Exception as e:
                 print(f"Error saving audit results: {e}")
 
 
 def main():
     """Main function to run the script."""
+    require_root()
     print("=" * 70)
     print("JSON YN- Dictionary Finder with Multithreaded SSH Audit")
     print("=" * 70)
     
-    # Get JSON file path
-    json_path = "path_info.json"
+    # Ask if user wants to retrieve a JSON file from a remote host
+    retrieve_remote = questionary.confirm(
+        "Do you want to copy a JSON file from a remote host?",
+        default=False
+    ).ask()
+    
+    json_path = "path_info.json"  # Default local JSON file path
+    
+    if retrieve_remote:
+        # Get SCP connection details
+        print("\nEnter remote host information to copy JSON file:")
+        host = questionary.text("Enter remote host IP or hostname:",
+        default="192.168.1.162"
+        ).ask()
+        username = questionary.text("Enter SSH username:").ask()
+        
+        # Ask for authentication method
+        auth_method = questionary.select(
+            "Select authentication method:",
+            choices=["Password", "Private Key"]
+        ).ask()
+        
+        password = None
+        key_path = None
+        
+        if auth_method == "Password":
+            password = questionary.password("Enter SSH password:").ask()
+        else:  # Private Key
+            key_path = questionary.text("Enter path to private key file:").ask()
+        
+        # Get remote file path
+        remote_path = questionary.text(
+            "Enter remote path to JSON file:",
+            default="/home/cisco/Desktop/pathInfo/path_info.json"
+        ).ask()
+        
+        # Get local path (default to current directory)
+        local_path = questionary.text(
+            "Enter local directory to save the file (empty for current directory):",
+            default="."
+        ).ask()
+        
+        # Use SCP to copy the file
+        success = scp_opsdata(
+            host=host,
+            remote_path=remote_path,
+            local_path=local_path,
+            username=username,
+            password=password,
+            key_path=key_path
+        )
+        
+        if success:
+            # Update JSON path to the downloaded file
+            json_path = os.path.join(local_path, os.path.basename(remote_path))
+            print(f"Will use downloaded JSON file: {json_path}")
+        else:
+            print("Failed to retrieve remote JSON file. Will use local file instead.")
     
     # Load the JSON data
     data = load_json_file(json_path)
