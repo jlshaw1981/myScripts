@@ -54,6 +54,214 @@ def require_root():
     else:
         print("Warning: Root check is not supported on Windows. Proceeding anyway.")
 
+def scp_path_info_interactive() -> bool:
+    """
+    Interactive function to prompt user for SCP connection details and transfer path_info.json.
+    
+    Returns:
+        bool: True if successful, False otherwise
+    """
+    import getpass
+    import os
+    
+    try:
+        print("=== SCP File Transfer Setup ===")
+        print("This will copy path_info.json from a remote host to your local directory")
+        print()
+        
+        # Get remote host details
+        remote_host = input("Enter remote host IP/hostname: ").strip()
+        if not remote_host:
+            print("Remote host is required")
+            return False
+        
+        username = input(f"Enter username for {remote_host}: ").strip()
+        if not username:
+            username = getpass.getuser()
+        
+        print("\nAuthentication method:")
+        print("1. Password")
+        print("2. SSH Key")
+        print("3. SSH Agent (no password/key needed)")
+        
+        auth_choice = input("Choose authentication method (1-3): ").strip()
+        
+        password = None
+        key_path = None
+        
+        if auth_choice == "1":
+            password = getpass.getpass(f"Enter password for {username}@{remote_host}: ")
+        elif auth_choice == "2":
+            key_path = input("Enter path to private key file (press Enter for ~/.ssh/id_rsa): ").strip()
+            if not key_path:
+                key_path = os.path.expanduser("~/.ssh/id_rsa")
+            if not os.path.exists(key_path):
+                print(f"Key file not found: {key_path}")
+                return False
+        
+        port = input("Enter SSH port (press Enter for 22): ").strip()
+        port = int(port) if port else 22
+        
+        # Get remote file path
+        remote_path = input("Enter full path to path_info.json on remote host (press Enter to auto-search): ").strip()
+        if not remote_path:
+            remote_path = None
+        
+        # Get local destination
+        local_path = input("Enter local destination directory (press Enter for current directory): ").strip()
+        if not local_path:
+            local_path = '.'
+        
+        # Confirm the operation
+        print(f"\n=== Transfer Summary ===")
+        print(f"Source: {username}@{remote_host}:{remote_path or '[auto-search]'}")
+        print(f"Destination: {local_path}/path_info.json")
+        
+        confirm = input("\nProceed with transfer? (y/N): ").strip().lower()
+        if confirm != 'y':
+            print("Transfer cancelled.")
+            return False
+        
+        # Perform the transfer using a standard SCP function
+        # You'll need to implement scp_path_info() function or use an existing one
+        return scp_path_info(
+            remote_host=remote_host,
+            username=username,
+            password=password,
+            key_path=key_path,
+            port=port,
+            remote_path=remote_path,
+            local_path=local_path
+        )
+        
+    except KeyboardInterrupt:
+        print("\nOperation cancelled by user")
+        return False
+    except Exception as e:
+        print(f"Interactive SCP failed: {e}")
+        return False
+
+
+def scp_path_info(remote_host: str, username: str, password: str = None, 
+                  key_path: str = None, port: int = 22, remote_path: str = None, 
+                  local_path: str = '.') -> bool:
+    """
+    Standard SCP function to pull path_info.json from remote host to local.
+    
+    Args:
+        remote_host: Remote host IP address or hostname
+        username: Username for remote host
+        password: Password for remote host (optional)
+        key_path: Path to private key file (optional)
+        port: SSH port (default: 22)
+        remote_path: Path to path_info.json on remote host (optional, will search if not provided)
+        local_path: Local destination directory (default: current directory)
+        
+    Returns:
+        bool: True if successful, False otherwise
+    """
+    try:
+        check_interrupted()  # Check if Ctrl+C was pressed
+        
+        print(f"Connecting to {remote_host}...")
+        ssh_client = ssh_connect(remote_host, username, password, key_path, port)
+        
+        if not ssh_client:
+            print(f"Failed: Could not establish SSH connection to {remote_host}")
+            return False
+        
+        # If remote_path not specified, search for path_info.json
+        if not remote_path:
+            common_paths = [
+                './path_info.json',
+                '~/path_info.json', 
+                '/tmp/path_info.json',
+                '/opt/path_info.json',
+                '/home/cisco/Desktop/pathInfo/path_info.json',
+                f'/home/{username}/path_info.json'
+            ]
+            
+            print("Searching for path_info.json on remote host...")
+            stdin, stdout, stderr = ssh_client.exec_command('find / -name "path_info.json" -type f 2>/dev/null | head -5')
+            found_files = stdout.read().decode().strip().split('\n')
+            
+            # Try found files first, then common paths
+            search_paths = [f for f in found_files if f] + common_paths
+            
+            remote_path = None
+            for path in search_paths:
+                try:
+                    stdin, stdout, stderr = ssh_client.exec_command(f'test -f "{path}" && echo "exists"')
+                    if stdout.read().decode().strip() == "exists":
+                        remote_path = path
+                        print(f"Found path_info.json at: {remote_path}")
+                        break
+                except:
+                    continue
+            
+            if not remote_path:
+                print("Could not find path_info.json on remote host")
+                return False
+        
+        # Use SCP to transfer the file
+        try:
+            import scp
+            
+            scp_client = scp.SCPClient(ssh_client.get_transport())
+            local_file_path = os.path.join(local_path, 'path_info.json')
+            
+            print(f"Transferring {remote_path} to {local_file_path}...")
+            scp_client.get(remote_path, local_file_path)
+            scp_client.close()
+            
+            # Verify the transfer
+            if os.path.exists(local_file_path):
+                file_size = os.path.getsize(local_file_path)
+                print(f"Transfer successful: path_info.json ({file_size} bytes) transferred to {local_file_path}")
+                return True
+            else:
+                print("Transfer failed: File not found locally after transfer")
+                return False
+                
+        except ImportError:
+            # If scp library not available, use command line scp
+            import subprocess
+            
+            local_file_path = os.path.join(local_path, 'path_info.json')
+            
+            if key_path:
+                cmd = ['scp', '-P', str(port), '-i', key_path, '-o', 'StrictHostKeyChecking=no',
+                       f'{username}@{remote_host}:{remote_path}', local_file_path]
+            else:
+                cmd = ['scp', '-P', str(port), '-o', 'StrictHostKeyChecking=no',
+                       f'{username}@{remote_host}:{remote_path}', local_file_path]
+            
+            print(f"Executing: scp {username}@{remote_host}:{remote_path} {local_file_path}")
+            result = subprocess.run(cmd, capture_output=True, text=True)
+            
+            if result.returncode == 0:
+                if os.path.exists(local_file_path):
+                    file_size = os.path.getsize(local_file_path)
+                    print(f"Transfer successful: path_info.json ({file_size} bytes) transferred to {local_file_path}")
+                    return True
+            else:
+                print(f"SCP command failed: {result.stderr}")
+                return False
+    
+    except KeyboardInterrupt:
+        print("\nTransfer interrupted by user")
+        return False
+    except Exception as e:
+        if 'interrupted' in globals() and interrupted:
+            return False
+        print(f"SCP transfer failed: {e}")
+        return False
+    finally:
+        if 'ssh_client' in locals() and ssh_client:
+            ssh_client.close()
+    
+    return False
+
 
 def scp_path_info_reverse(host2: str, host1: str, host1_username: str, host1_password: str = None,
                          host1_key_path: str = None, remote_path: str = None, local_path: str = '.', 
@@ -324,34 +532,6 @@ def scp_path_info_reverse_interactive() -> bool:
     except Exception as e:
         print(f"Interactive reverse SCP failed: {e}")
         return False
-
-
-def scp_path_info_simple_reverse(host2: str, host1: str, host2_user: str, host2_pass: str,
-                                host1_user: str, host1_pass: str, remote_file_path: str = None) -> bool:
-    """
-    Simplified version for basic username/password authentication only.
-    
-    Args:
-        host2: Host #2 IP/hostname (where file currently exists)
-        host1: Host #1 IP/hostname (where file should be sent)
-        host2_user: Username for Host #2
-        host2_pass: Password for Host #2
-        host1_user: Username for Host #1
-        host1_pass: Password for Host #1
-        remote_file_path: Path to path_info.json on Host #2 (optional)
-        
-    Returns:
-        bool: True if successful, False otherwise
-    """
-    return scp_path_info_reverse(
-        host2=host2,
-        host1=host1,
-        host1_username=host1_user,
-        host1_password=host1_pass,
-        remote_path=remote_file_path,
-        username=host2_user,
-        password=host2_pass
-    )
 
 
 def load_json_file(file_path: str) -> Dict:
