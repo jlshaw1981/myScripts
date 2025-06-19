@@ -1,0 +1,1158 @@
+#!/usr/bin/env python3
+
+import json
+import sys
+from PyInquirer import prompt, style_from_dict, Token, Separator
+import paramiko
+import os
+import time
+import queue
+import signal
+from concurrent.futures import ThreadPoolExecutor
+from typing import Dict, List, Any, Tuple
+from scp import SCPClient
+
+# Custom style for PyInquirer
+custom_style = style_from_dict({
+    Token.Separator: '#cc5454',
+    Token.QuestionMark: '#673ab7 bold',
+    Token.Selected: '#cc5454',  # default
+    Token.Pointer: '#673ab7 bold',
+    Token.Instruction: '',  # default
+    Token.Answer: '#f44336 bold',
+    Token.Question: '',
+})
+
+# Global flag to track if Ctrl+C was pressed
+interrupted = False
+
+def signal_handler(sig, frame):
+    """Handle Ctrl+C (SIGINT) gracefully."""
+    global interrupted
+    interrupted = True
+    print("\n\nCtrl+C detected. Cleaning up and exiting...")
+    # Don't exit immediately, let the current operation clean up gracefully
+    # The interrupted flag will be checked throughout the code
+
+def setup_signal_handler():
+    """Setup the signal handler for Ctrl+C."""
+    signal.signal(signal.SIGINT, signal_handler)
+
+def check_interrupted():
+    """Check if the script has been interrupted and exit if needed."""
+    global interrupted
+    if interrupted:
+        print("\nOperation cancelled by user. Exiting.")
+        sys.exit(0)
+
+def require_root():
+    """Ensure the script is run with root privileges."""
+    if os.name != 'nt':  # Only check EUID on Unix-like systems
+        if os.geteuid() != 0:
+            print("Error: This script must be run as root. Try again with 'sudo'.")
+            sys.exit(1)
+    else:
+        print("Warning: Root check is not supported on Windows. Proceeding anyway.")
+
+def scp_path_info_interactive() -> bool:
+    """
+    Interactive function to prompt user for SCP connection details and transfer path_info.json.
+    
+    Returns:
+        bool: True if successful, False otherwise
+    """
+    import getpass
+    import os
+    
+    try:
+        print("=== SCP File Transfer Setup ===")
+        print("This will copy path_info.json from a remote host to your local directory")
+        print()
+        
+        # Get remote host details
+        default_ip = str("192.168.1.162")
+        remote_host = input(f"Enter remote host IP/hostname or (press Enter for {default_ip}) : ").strip()
+        remote_host = str(remote_host) if remote_host else default_ip
+
+        # if not remote_host:
+        #     print("Remote host is required")
+        #     return False
+      
+        username = input(f"Enter username for {remote_host}: ").strip()
+        if not username:
+            username = getpass.getuser()
+        
+        questions = [
+            {
+                'type': 'list',
+                'name': 'auth_method',
+                'message': 'Choose authentication method:',
+                'choices': [
+                    {'name': 'Password', 'value': 'password'},
+                    {'name': 'SSH Key', 'value': 'ssh_key'}
+                ]
+            }
+        ]
+
+        # Get authentication method choice
+        auth_answer = prompt(questions)
+
+        if not auth_answer:
+            return False
+
+        password = None
+        key_path = None
+
+        if auth_answer['auth_method'] == 'password':
+            password = getpass.getpass(f"Enter password for {username}@{remote_host}: ")
+
+        elif auth_answer['auth_method'] == 'ssh_key':
+            key_questions = [
+                {
+                    'type': 'input',
+                    'name': 'key_path',
+                    'message': 'Enter path to private key file:',
+                    'default': '~/.ssh/id_rsa'
+                }
+            ]
+            
+            key_answer = prompt(key_questions)
+            
+            if key_answer:
+                key_path = key_answer['key_path'].strip()
+                if not key_path:
+                    key_path = os.path.expanduser("~/.ssh/id_rsa")
+                else:
+                    key_path = os.path.expanduser(key_path)
+                
+                if not os.path.exists(key_path):
+                    print(f"Key file not found: {key_path}")
+                    return False
+        
+        port = input("Enter SSH port (press Enter for 22): ").strip()
+        port = int(port) if port else 22
+        
+        # Get remote file path
+        remote_path = input("Enter full path to path_info.json on remote host (press Enter to auto-search): ").strip()
+        if not remote_path:
+            remote_path = None
+        
+        # Get local destination
+        local_path = input("Enter local destination directory (press Enter for current directory): ").strip()
+        if not local_path:
+            local_path = '.'
+        
+        # Confirm the operation
+        print(f"\n=== Transfer Summary ===")
+        print(f"Source: {username}@{remote_host}:{remote_path or '[auto-search]'}")
+        print(f"Destination: {local_path}/path_info.json")
+        
+        confirm = input("\nProceed with transfer? (y/N): ").strip().lower()
+        if confirm != 'y':
+            print("Transfer cancelled.")
+            return False
+        
+        # Perform the transfer using a standard SCP function
+        # You'll need to implement scp_path_info() function or use an existing one
+        return scp_path_info(
+            remote_host=remote_host,
+            username=username,
+            password=password,
+            key_path=key_path,
+            port=port,
+            remote_path=remote_path,
+            local_path=local_path
+        )
+        
+    except KeyboardInterrupt:
+        print("\nOperation cancelled by user")
+        return False
+    except Exception as e:
+        print(f"Interactive SCP failed: {e}")
+        return False
+
+
+def scp_path_info(remote_host: str, username: str, password: str = None, 
+                  key_path: str = None, port: int = 22, remote_path: str = None, 
+                  local_path: str = '.') -> bool:
+    """
+    Standard SCP function to pull path_info.json from remote host to local.
+    
+    Args:
+        remote_host: Remote host IP address or hostname
+        username: Username for remote host
+        password: Password for remote host (optional)
+        key_path: Path to private key file (optional)
+        port: SSH port (default: 22)
+        remote_path: Path to path_info.json on remote host (optional, will search if not provided)
+        local_path: Local destination directory (default: current directory)
+        
+    Returns:
+        bool: True if successful, False otherwise
+    """
+    try:
+        check_interrupted()  # Check if Ctrl+C was pressed
+        
+        print(f"Connecting to {remote_host}...")
+        ssh_client = ssh_connect(remote_host, username, password, key_path, port)
+        
+        if not ssh_client:
+            print(f"Failed: Could not establish SSH connection to {remote_host}")
+            return False
+        
+        # If remote_path not specified, search for path_info.json
+        if not remote_path:
+            common_paths = [
+                './path_info.json',
+                '~/path_info.json', 
+                '/tmp/path_info.json',
+                '/opt/path_info.json',
+                '/home/cisco/Desktop/pathInfo/path_info.json',
+                f'/home/{username}/path_info.json'
+            ]
+            
+            print("Searching for path_info.json on remote host...")
+            stdin, stdout, stderr = ssh_client.exec_command('find / -name "path_info.json" -type f 2>/dev/null | head -5')
+            found_files = stdout.read().decode().strip().split('\n')
+            
+            # Try found files first, then common paths
+            search_paths = [f for f in found_files if f] + common_paths
+            
+            remote_path = None
+            for path in search_paths:
+                try:
+                    stdin, stdout, stderr = ssh_client.exec_command(f'test -f "{path}" && echo "exists"')
+                    if stdout.read().decode().strip() == "exists":
+                        remote_path = path
+                        print(f"Found path_info.json at: {remote_path}")
+                        break
+                except:
+                    continue
+            
+            if not remote_path:
+                print("Could not find path_info.json on remote host")
+                return False
+        
+        # Use SCP to transfer the file
+        try:
+            import scp
+            
+            scp_client = scp.SCPClient(ssh_client.get_transport())
+            local_file_path = os.path.join(local_path, 'path_info.json')
+            
+            print(f"Transferring {remote_path} to {local_file_path}...")
+            scp_client.get(remote_path, local_file_path)
+            scp_client.close()
+            
+            # Verify the transfer
+            if os.path.exists(local_file_path):
+                file_size = os.path.getsize(local_file_path)
+                print(f"Transfer successful: path_info.json ({file_size} bytes) transferred to {local_file_path}")
+                return True
+            else:
+                print("Transfer failed: File not found locally after transfer")
+                return False
+                
+        except ImportError:
+            # If scp library not available, use command line scp
+            import subprocess
+            
+            local_file_path = os.path.join(local_path, 'path_info.json')
+            
+            if key_path:
+                cmd = ['scp', '-P', str(port), '-i', key_path, '-o', 'StrictHostKeyChecking=no',
+                       f'{username}@{remote_host}:{remote_path}', local_file_path]
+            else:
+                cmd = ['scp', '-P', str(port), '-o', 'StrictHostKeyChecking=no',
+                       f'{username}@{remote_host}:{remote_path}', local_file_path]
+            
+            print(f"Executing: scp {username}@{remote_host}:{remote_path} {local_file_path}")
+            result = subprocess.run(cmd, capture_output=True, text=True)
+            
+            if result.returncode == 0:
+                if os.path.exists(local_file_path):
+                    file_size = os.path.getsize(local_file_path)
+                    print(f"Transfer successful: path_info.json ({file_size} bytes) transferred to {local_file_path}")
+                    return True
+            else:
+                print(f"SCP command failed: {result.stderr}")
+                return False
+    
+    except KeyboardInterrupt:
+        print("\nTransfer interrupted by user")
+        return False
+    except Exception as e:
+        if 'interrupted' in globals() and interrupted:
+            return False
+        print(f"SCP transfer failed: {e}")
+        return False
+    finally:
+        if 'ssh_client' in locals() and ssh_client:
+            ssh_client.close()
+    
+    return False
+
+
+def load_json_file(file_path: str) -> Dict:
+    """
+    Load and parse the JSON file.
+    
+    Args:
+        file_path: Path to the JSON file
+        
+    Returns:
+        Parsed JSON data as a dictionary
+    """
+    try:
+        check_interrupted()  # Check if Ctrl+C was pressed
+        
+        with open(file_path, 'r') as file:
+            data = json.load(file)
+        print(f"Successfully loaded data from {file_path}")
+        return data
+    except FileNotFoundError:
+        print(f"Error: File {file_path} not found.")
+        sys.exit(1)
+    except json.JSONDecodeError:
+        print(f"Error: {file_path} is not a valid JSON file.")
+        sys.exit(1)
+    except Exception as e:
+        if interrupted:  # Check if the exception was due to interruption
+            sys.exit(0)
+        print(f"Error loading JSON file: {e}")
+        sys.exit(1)
+
+
+def find_yn_dictionaries(data: Any, path: str = "", results: List[Tuple[str, Dict]] = None) -> List[Tuple[str, Dict]]:
+    """
+    Recursively find all dictionaries with keys starting with "YN-".
+    
+    Args:
+        data: The JSON data to search through
+        path: Current path in the JSON structure (for tracking location)
+        results: List to store found dictionaries
+        
+    Returns:
+        List of tuples containing (path, dictionary)
+    """
+    check_interrupted()  # Check if Ctrl+C was pressed
+    
+    if results is None:
+        results = []
+    
+    # If data is a dictionary
+    if isinstance(data, dict):
+        # Check all keys in this dictionary
+        for key, value in data.items():
+            current_path = f"{path}.{key}" if path else key
+            
+            # Check if this key starts with "YN-"
+            if key.startswith("YN-"):
+                results.append((current_path, data[key]))
+            
+            # Recursively check nested dictionaries
+            if isinstance(value, (dict, list)):
+                find_yn_dictionaries(value, current_path, results)
+                
+    # If data is a list
+    elif isinstance(data, list):
+        # Check each item in the list
+        for i, item in enumerate(data):
+            current_path = f"{path}[{i}]"
+            if isinstance(item, (dict, list)):
+                find_yn_dictionaries(item, current_path, results)
+    
+    return results
+
+
+def display_yn_dictionaries(yn_dicts: List[Tuple[str, Dict]]) -> Tuple[str, Dict]:
+    """
+    Display the found dictionaries and let user choose one using PyInquirer.
+    
+    Args:
+        yn_dicts: List of tuples containing (path, dictionary)
+        
+    Returns:
+        Tuple containing (path, selected dictionary)
+    """
+    check_interrupted()  # Check if Ctrl+C was pressed
+    
+    if not yn_dicts:
+        print("No dictionaries with keys starting with 'YN-' found in the JSON file.")
+        sys.exit(0)
+    
+    print(f"Found {len(yn_dicts)} dictionaries with keys starting with 'YN-':")
+    
+    # Create choices for PyInquirer
+    choices = []
+    # Fix the unpacking issue by safely accessing tuple elements
+    for i, item in enumerate(yn_dicts):
+        if isinstance(item, tuple) and len(item) >= 2:
+            path = item[0]
+            dict_data = item[1]
+            
+            # Create a summary of the dictionary
+            summary = str(dict_data)
+            if len(summary) > 50:
+                summary = summary[:47] + "..."
+                
+            # Create a choice with the path and summary
+            choice_text = f"{path}: {summary}"
+            choices.append({'name': choice_text, 'value': i})
+    
+    try:
+        # Let user select a dictionary
+        question = {
+            'type': 'list',
+            'name': 'selected_dict',
+            'message': 'Select a dictionary:',
+            'choices': choices
+        }
+        
+        answer = prompt([question], style=custom_style)
+        
+        check_interrupted()  # Check if Ctrl+C was pressed
+        
+        if not answer or 'selected_dict' not in answer:
+            print("No selection made. Exiting.")
+            sys.exit(0)
+        
+        selected_index = answer['selected_dict']
+        return yn_dicts[selected_index]
+        
+    except Exception as e:
+        if interrupted:  # Check if the exception was due to interruption
+            sys.exit(0)
+        raise e
+
+
+def display_selected_dictionary(selected_dict: Dict) -> None:
+    """
+    Display the selected dictionary in a formatted way.
+    
+    Args:
+        selected_dict: The dictionary to display
+    """
+    check_interrupted()  # Check if Ctrl+C was pressed
+    
+    print("\nSelected Dictionary:")
+    print("-" * 50)
+    
+    # Format the dictionary as pretty JSON
+    formatted_json = json.dumps(selected_dict, indent=4)
+    print(formatted_json)
+    print("-" * 50)
+
+
+def extract_ip_addresses(data: Any, ip_info: List[Dict] = None) -> List[Dict]:
+    """
+    Recursively extract all IP addresses from the dictionary.
+    
+    Args:
+        data: The dictionary to extract IPs from
+        ip_info: List to store found IP addresses and hostnames
+        
+    Returns:
+        List of dictionaries with 'hostname' and 'ip_address' keys
+    """
+    check_interrupted()  # Check if Ctrl+C was pressed
+    
+    if ip_info is None:
+        ip_info = []
+    
+    # If data is a dictionary
+    if isinstance(data, dict):
+        # Check if this dictionary contains both hostname and ip_address
+        if "Hostname" in data and "ip_address" in data:
+            ip_info.append({
+                "hostname": data["Hostname"],
+                "ip_address": data["ip_address"],
+            })
+        
+        # Check all values in this dictionary
+        for value in data.values():
+            if isinstance(value, (dict, list)):
+                extract_ip_addresses(value, ip_info)
+    
+    # If data is a list
+    elif isinstance(data, list):
+        # Check each item in the list
+        for item in data:
+            if isinstance(item, (dict, list)):
+                extract_ip_addresses(item, ip_info)
+    
+    return ip_info
+
+
+def ssh_connect(host: str, username: str, password: str = None, key_path: str = None, port: int = 22) -> paramiko.SSHClient:
+    """
+    Connect to a remote host via SSH.
+    
+    Args:
+        host: Remote host IP address or hostname
+        username: SSH username
+        password: SSH password (optional)
+        key_path: Path to private key file (optional)
+        port: SSH port (default: 22)
+        
+    Returns:
+        SSHClient object if connection successful, None otherwise
+    """
+    check_interrupted()  # Check if Ctrl+C was pressed
+    
+    client = paramiko.SSHClient()
+    client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+    
+    try:
+        if key_path:
+            key = paramiko.RSAKey.from_private_key_file(key_path)
+            client.connect(hostname=host, port=port, username=username, pkey=key, timeout=10)
+        else:
+            client.connect(hostname=host, port=port, username=username, password=password, timeout=10)
+        
+        print(f"Successfully connected to {host}")
+        return client
+    except Exception as e:
+        if interrupted:  # Check if the exception was due to interruption
+            return None
+        print(f"SSH connection failed to {host}: {e}")
+        return None
+
+
+def execute_ssh_command(client: paramiko.SSHClient, command: str) -> Tuple[str, str, int]:
+    """
+    Execute a command on a remote host via SSH.
+    
+    Args:
+        client: SSHClient object
+        command: Command to execute
+        
+    Returns:
+        Tuple containing (stdout, stderr, return_code)
+    """
+    check_interrupted()  # Check if Ctrl+C was pressed
+    
+    try:
+        # Execute the command
+        stdin, stdout, stderr = client.exec_command(command, timeout=30)
+        
+        # Get the return code
+        return_code = stdout.channel.recv_exit_status()
+        
+        check_interrupted()  # Check if Ctrl+C was pressed
+        
+        # Get output
+        stdout_str = stdout.read().decode('utf-8')
+        stderr_str = stderr.read().decode('utf-8')
+        
+        return stdout_str, stderr_str, return_code
+    except Exception as e:
+        if interrupted:  # Check if the exception was due to interruption
+            return "", "Operation cancelled by user", -1
+        return "", str(e), -1
+
+
+def execute_audit_worker(host_info: Dict, ssh_username: str, ssh_password: str = None, key_path: str = None,
+                         result_queue: queue.Queue = None) -> Dict:
+    """
+    Worker function to execute audit on a single host.
+    
+    Args:
+        host_info: Dictionary with host information
+        ssh_username: SSH username
+        ssh_password: SSH password (optional)
+        key_path: Path to private key file (optional)
+        result_queue: Queue to put results in (optional)
+        
+    Returns:
+        Dictionary with audit results
+    """
+    global interrupted
+    
+    ip = host_info["ip_address"]
+    hostname = host_info["hostname"]
+    
+    host_results = {
+        "hostname": hostname,
+        "ip_address": ip,
+        "commands": []
+    }
+    
+    if interrupted:  # Check if Ctrl+C was pressed before starting work
+        host_results["error"] = "Operation cancelled by user"
+        if result_queue is not None:
+            result_queue.put(host_results)
+        return host_results
+    
+    print(f"\n{'=' * 60}")
+    print(f"Executing Audit on {hostname} ({ip}):")
+    print(f"{'=' * 60}")
+    
+    # Connect to SSH
+    ssh_client = ssh_connect(ip, ssh_username, ssh_password, key_path)
+    
+    if ssh_client:
+        # List of audit commands to run
+        audit_commands = [
+            "hostname",
+            "ping -c 4 1.1.1.1",
+            "ifconfig || ip a",
+            "route -n || ip route",
+            "cat /etc/os-release",
+            "uname -a",
+            "uptime"
+        ]
+        
+        # Execute each audit command
+        print(f"\nExecuting audit commands on {hostname}...")
+        for cmd in audit_commands:
+            if interrupted:  # Check if Ctrl+C was pressed before executing command
+                host_results["error"] = "Operation cancelled by user"
+                break
+                
+            print(f"\n--- {hostname}: Command: {cmd} ---")
+            stdout, stderr, return_code = execute_ssh_command(ssh_client, cmd)
+            
+            command_result = {
+                "command": cmd,
+                "return_code": return_code,
+                "stdout": stdout,
+                "stderr": stderr
+            }
+            
+            host_results["commands"].append(command_result)
+            
+            if return_code == 0:
+                print(f"{hostname}: {cmd} executed successfully")
+            else:
+                print(f"{hostname}: {cmd} failed with error code {return_code}")
+        
+        # Close SSH connection
+        ssh_client.close()
+        print(f"\nSSH connection to {hostname} closed")
+        print(f"{'=' * 60}")
+    else:
+        print(f"Audit failed: Could not establish SSH connection to {hostname} ({ip})")
+        host_results["error"] = "SSH connection failed"
+    
+    # Put results in queue if provided
+    if result_queue is not None and not interrupted:
+        result_queue.put(host_results)
+    
+    return host_results
+
+
+def run_multithreaded_audit(selected_hosts: List[Dict], max_workers: int = 10) -> List[Dict]:
+    """
+    Run audit commands on multiple hosts using threads.
+    
+    Args:
+        selected_hosts: List of dictionaries with host information
+        max_workers: Maximum number of worker threads
+        
+    Returns:
+        List of dictionaries with audit results
+    """
+    global interrupted
+    audit_results = []
+    result_queue = queue.Queue()
+    
+    check_interrupted()  # Check if Ctrl+C was pressed
+    
+    try:
+        # Get common SSH credentials
+        print("\nEnter common SSH credentials for all hosts:")
+        
+        username_question = {
+            'type': 'input',
+            'name': 'ssh_username',
+            'message': 'Enter SSH username:'
+        }
+        username_answer = prompt([username_question], style=custom_style)
+        
+        check_interrupted()  # Check if Ctrl+C was pressed
+        
+        if not username_answer or 'ssh_username' not in username_answer:
+            print("No username provided. Exiting.")
+            return []
+        
+        ssh_username = username_answer['ssh_username']
+        
+        # Ask for authentication method
+        auth_question = {
+            'type': 'list',
+            'name': 'auth_method',
+            'message': 'Select authentication method:',
+            'choices': ['Password', 'Private Key']
+        }
+        auth_answer = prompt([auth_question], style=custom_style)
+        
+        check_interrupted()  # Check if Ctrl+C was pressed
+        
+        if not auth_answer or 'auth_method' not in auth_answer:
+            print("No authentication method selected. Exiting.")
+            return []
+        
+        ssh_password = None
+        key_path = None
+        
+        if auth_answer['auth_method'] == "Password":
+            password_question = {
+                'type': 'password',
+                'name': 'ssh_password',
+                'message': 'Enter SSH password:'
+            }
+            password_answer = prompt([password_question], style=custom_style)
+            
+            if password_answer and 'ssh_password' in password_answer:
+                ssh_password = password_answer['ssh_password']
+        else:  # Private Key
+            key_question = {
+                'type': 'input',
+                'name': 'key_path',
+                'message': 'Enter path to private key file:'
+            }
+            key_answer = prompt([key_question], style=custom_style)
+            
+            if key_answer and 'key_path' in key_answer:
+                key_path = key_answer['key_path']
+        
+        check_interrupted()  # Check if Ctrl+C was pressed
+        
+        # Ask for maximum concurrent connections
+        actual_max_workers = min(max_workers, len(selected_hosts))
+        worker_choices = [{'name': str(n), 'value': n} for n in range(1, actual_max_workers + 1)]
+        
+        workers_question = {
+            'type': 'list',
+            'name': 'num_workers',
+            'message': 'Select maximum concurrent connections:',
+            'choices': worker_choices
+        }
+        workers_answer = prompt([workers_question], style=custom_style)
+        
+        check_interrupted()  # Check if Ctrl+C was pressed
+        
+        if not workers_answer or 'num_workers' not in workers_answer:
+            print("No worker count selected. Using default of 1.")
+            num_workers = 1
+        else:
+            num_workers = workers_answer['num_workers']
+        
+        print(f"\nUsing {num_workers} concurrent connections")
+        
+        # Create a thread pool
+        with ThreadPoolExecutor(max_workers=num_workers) as executor:
+            # Submit tasks
+            futures = []
+            for host in selected_hosts:
+                if interrupted:  # Check if Ctrl+C was pressed before submitting tasks
+                    break
+                    
+                future = executor.submit(
+                    execute_audit_worker,
+                    host_info=host,
+                    ssh_username=ssh_username,
+                    ssh_password=ssh_password,
+                    key_path=key_path,
+                    result_queue=result_queue
+                )
+                futures.append(future)
+            
+            # Track progress
+            completed = 0
+            total = len(futures)
+            
+            while completed < total and not interrupted:
+                completed = sum(1 for f in futures if f.done())
+                print(f"\rProgress: {completed}/{total} hosts completed", end="")
+                time.sleep(0.5)
+            
+            if interrupted:
+                print("\nAudit interrupted by user. Waiting for running tasks to complete...")
+                # We don't need to cancel tasks here, as the workers check for interruption
+            else:
+                print("\nAll hosts completed!")
+        
+        # Get results from queue
+        while not result_queue.empty():
+            audit_results.append(result_queue.get())
+        
+    except Exception as e:
+        if interrupted:  # Check if the exception was due to interruption
+            print("\nOperation cancelled by user during credential input.")
+        else:
+            print(f"Error during multithreaded audit: {e}")
+    
+    return audit_results
+
+
+def run_network_commands(ip_info: List[Dict]) -> List[Dict]:
+    """
+    Run network commands on each IP address.
+    
+    Args:
+        ip_info: List of dictionaries with 'hostname' and 'ip_address' keys
+        
+    Returns:
+        List of dictionaries with audit results
+    """
+    check_interrupted()  # Check if Ctrl+C was pressed
+    
+    if not ip_info:
+        print("No IP addresses found in the selected dictionary.")
+        return []
+    
+    # Display found hosts and IPs
+    print("\nFound the following hosts and IP addresses:")
+    print("-" * 60)
+    print(f"{'Hostname':<30} {'IP Address':<15}")
+    print("-" * 60)
+    for item in ip_info:
+        print(f"{item['hostname']:<30} {item['ip_address']:<15}")
+    print("-" * 60)
+    
+    try:
+        # Let user select which IPs to run commands on
+        choices = [{'name': f"{item['hostname']} ({item['ip_address']})", 'value': item} for item in ip_info]
+        
+        hosts_question = {
+            'type': 'checkbox',
+            'name': 'selected_hosts',
+            'message': 'Select hosts to audit:',
+            'choices': choices
+        }
+        hosts_answer = prompt([hosts_question], style=custom_style)
+        
+        check_interrupted()  # Check if Ctrl+C was pressed
+        
+        if not hosts_answer or 'selected_hosts' not in hosts_answer or not hosts_answer['selected_hosts']:
+            print("No hosts selected. Skipping audit.")
+            return []
+        
+        selected_hosts = hosts_answer['selected_hosts']
+        
+        check_interrupted()  # Check if Ctrl+C was pressed
+        
+        # Ask if user wants to use multithreading
+        threading_question = {
+            'type': 'confirm',
+            'name': 'use_threading',
+            'message': 'Do you want to run audit commands in parallel on all hosts?',
+            'default': True
+        }
+        threading_answer = prompt([threading_question], style=custom_style)
+        
+        check_interrupted()  # Check if Ctrl+C was pressed
+        
+        use_threading = threading_answer.get('use_threading', True)
+        
+        if use_threading:
+            # Run commands in parallel
+            audit_results = run_multithreaded_audit(selected_hosts)
+        else:
+            # Run commands sequentially
+            audit_results = []
+            for host in selected_hosts:
+                if interrupted:  # Check if Ctrl+C was pressed before processing next host
+                    break
+                
+                # Get SSH credentials for each host
+                print(f"\nEnter SSH credentials for {host['hostname']} ({host['ip_address']}):")
+                
+                username_question = {
+                    'type': 'input',
+                    'name': 'ssh_username',
+                    'message': f'Enter SSH username for {host["hostname"]}:'
+                }
+                username_answer = prompt([username_question], style=custom_style)
+                
+                check_interrupted()  # Check if Ctrl+C was pressed
+                
+                if not username_answer or 'ssh_username' not in username_answer:
+                    print(f"No username provided for {host['hostname']}. Skipping.")
+                    continue
+                
+                ssh_username = username_answer['ssh_username']
+                
+                # Ask for authentication method
+                auth_question = {
+                    'type': 'list',
+                    'name': 'auth_method',
+                    'message': f'Select authentication method for {host["hostname"]}:',
+                    'choices': ['Password', 'Private Key']
+                }
+                auth_answer = prompt([auth_question], style=custom_style)
+                
+                check_interrupted()  # Check if Ctrl+C was pressed
+                
+                if not auth_answer or 'auth_method' not in auth_answer:
+                    print(f"No authentication method selected for {host['hostname']}. Skipping.")
+                    continue
+                
+                ssh_password = None
+                key_path = None
+                
+                if auth_answer['auth_method'] == "Password":
+                    password_question = {
+                        'type': 'password',
+                        'name': 'ssh_password',
+                        'message': f'Enter SSH password for {host["hostname"]}:'
+                    }
+                    password_answer = prompt([password_question], style=custom_style)
+                    
+                    if password_answer and 'ssh_password' in password_answer:
+                        ssh_password = password_answer['ssh_password']
+                else:  # Private Key
+                    key_question = {
+                        'type': 'input',
+                        'name': 'key_path',
+                        'message': 'Enter path to private key file:'
+                    }
+                    key_answer = prompt([key_question], style=custom_style)
+                    
+                    if key_answer and 'key_path' in key_answer:
+                        key_path = key_answer['key_path']
+                
+                check_interrupted()  # Check if Ctrl+C was pressed
+                
+                # Execute audit
+                host_result = execute_audit_worker(
+                    host_info=host,
+                    ssh_username=ssh_username,
+                    ssh_password=ssh_password,
+                    key_path=key_path
+                )
+                
+                audit_results.append(host_result)
+        
+        return audit_results
+    
+    except Exception as e:
+        if interrupted:  # Check if the exception was due to interruption
+            print("\nOperation cancelled by user during host selection.")
+            return []
+        else:
+            print(f"Error during network commands: {e}")
+            return []
+
+
+def save_audit_results(audit_results: List[Dict]) -> None:
+    """
+    Save audit results to a file.
+    
+    Args:
+        audit_results: List of dictionaries with audit results
+    """
+    check_interrupted()  # Check if Ctrl+C was pressed
+    
+    if not audit_results:
+        print("No audit results to save.")
+        return
+    
+    try:
+        # Ask if user wants to save the audit results
+        save_question = {
+            'type': 'confirm',
+            'name': 'save_to_file',
+            'message': 'Do you want to save the audit results to a file?'
+        }
+        save_answer = prompt([save_question], style=custom_style)
+        
+        check_interrupted()  # Check if Ctrl+C was pressed
+        
+        if not save_answer.get('save_to_file', False):
+            return
+        
+        # Ask for output directory
+        dir_question = {
+            'type': 'input',
+            'name': 'output_dir',
+            'message': 'Enter output directory (leave empty for current directory):',
+            'default': ''
+        }
+        dir_answer = prompt([dir_question], style=custom_style)
+        
+        check_interrupted()  # Check if Ctrl+C was pressed
+        
+        output_dir = dir_answer.get('output_dir', '')
+        
+        if output_dir and not os.path.exists(output_dir):
+            try:
+                os.makedirs(output_dir)
+                print(f"Created directory: {output_dir}")
+            except Exception as e:
+                print(f"Error creating directory: {e}")
+                output_dir = ""
+        
+        # Save results for each host
+        for host_result in audit_results:
+            if interrupted:  # Check if Ctrl+C was pressed before saving next file
+                break
+                
+            hostname = host_result["hostname"]
+            ip = host_result["ip_address"]
+            
+            # Create filename
+            filename = f"audit_{hostname}_{ip.replace('.', '_')}.txt"
+            if output_dir:
+                filepath = os.path.join(output_dir, filename)
+            else:
+                filepath = filename
+            
+            try:
+                with open(filepath, 'w') as file:
+                    file.write(f"Audit Results for {hostname} ({ip})\n")
+                    file.write("=" * 60 + "\n\n")
+                    
+                    if "error" in host_result:
+                        file.write(f"ERROR: {host_result['error']}\n\n")
+                    
+                    for cmd_result in host_result.get("commands", []):
+                        command = cmd_result.get("command", "Unknown command")
+                        return_code = cmd_result.get("return_code", -1)
+                        stdout = cmd_result.get("stdout", "")
+                        stderr = cmd_result.get("stderr", "")
+                        
+                        file.write(f"Command: {command}\n")
+                        file.write("-" * 40 + "\n")
+                        
+                        if return_code == 0:
+                            file.write(f"Output:\n{stdout}\n")
+                        else:
+                            file.write(f"Command failed with error code {return_code}:\n")
+                            if stderr:
+                                file.write(f"{stderr}\n")
+                        
+                        file.write("\n" + "-" * 40 + "\n\n")
+                
+                print(f"Successfully saved audit results to filename {filepath}")
+            except Exception as e:
+                print(f"Error saving audit results: {e}")
+    
+    except Exception as e:
+        if interrupted:  # Check if the exception was due to interruption
+            print("\nOperation cancelled by user during file saving.")
+        else:
+            print(f"Error saving audit results: {e}")
+
+def main():
+    """Main function to run the script."""
+    global interrupted
+    interrupted = False  # Reset the interrupted flag at the start of each run
+
+    try:
+        require_root()
+        print("=" * 70)
+        print("JSON YN- Dictionary Finder with Multithreaded SSH Audit")
+        print("=" * 70)
+        print("Press Ctrl+C at any time to safely exit the script")
+
+        json_path = "path_info.json"  # Default local JSON file path
+
+        # Check if user wants to retrieve file from remote host
+        retrieve_remote = input("Do you want to retrieve path_info.json from a remote host? (y/N): ").strip().lower() == 'y'
+
+        if retrieve_remote:
+            print("\n=== Remote File Retrieval ===")
+            print("--- Standard SCP Mode ---")
+            # Use standard SCP to copy the file
+            success = scp_path_info_interactive()
+
+            if success:
+                print("path_info.json successfully transferred!")
+
+                # Optionally read and display the content
+                try:
+                    import json
+                    with open('path_info.json', 'r') as f:
+                        data = json.load(f)
+                    print(f"File contains {len(data)} items" if isinstance(data, (list, dict)) else "File loaded successfully")
+                except:
+                    pass
+            else:
+                print("Failed to transfer path_info.json")
+                return
+
+        check_interrupted()  # Check if Ctrl+C was pressed
+
+        # Load the JSON data
+        data = load_json_file(json_path)
+
+        check_interrupted()  # Check if Ctrl+C was pressed
+
+        # Find all dictionaries with keys starting with "YN-"
+        yn_dicts = find_yn_dictionaries(data)
+
+        check_interrupted()  # Check if Ctrl+C was pressed
+
+        # Let user select a dictionary
+        path, selected_dict = display_yn_dictionaries(yn_dicts)
+
+        check_interrupted()  # Check if Ctrl+C was pressed
+
+        # Display the selected dictionary
+        display_selected_dictionary(selected_dict)
+
+        check_interrupted()  # Check if Ctrl+C was pressed
+
+        # Extract IP addresses from the selected dictionary
+        ip_info = extract_ip_addresses(selected_dict)
+
+        check_interrupted()  # Check if Ctrl+C was pressed
+
+        # Run audit on extracted IP addresses and get results
+        audit_results = run_network_commands(ip_info)
+
+        check_interrupted()  # Check if Ctrl+C was pressed
+
+        # Save audit results to file
+        save_audit_results(audit_results)
+
+        print("=" * 70)
+        print("Script execution completed!")
+        print("=" * 70)
+
+    except Exception as e:
+        if interrupted:
+            print("\nOperation cancelled by user.")
+        else:
+            print(f"An error occurred: {e}")
+
+
+
+if __name__ == "__main__":
+    # Set up signal handler for Ctrl+C
+    setup_signal_handler()
+    
+    try:
+        while True:
+            # Reset the interrupted flag before starting a new run
+            interrupted = False
+            
+            main()
+            
+            # Only ask to run again if not interrupted
+            if not interrupted:
+                try:
+                    again_question = {
+                        'type': 'confirm',
+                        'message': 'Run the script again?',
+                        'name': 'again'
+                    }
+                    
+                    again_answer = prompt(again_question)
+                    again = again_answer['again']
+                    
+                    if not again:
+                        print("Exiting.")
+                        break
+                except Exception:
+                    print("Error asking to run again. Exiting.")
+                    break
+            else:
+                # If interrupted, don't ask to run again
+                break
+    except KeyboardInterrupt:
+        print("\n\nExecution interrupted by user. Exiting.")
+        sys.exit(0)
