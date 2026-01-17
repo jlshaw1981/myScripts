@@ -1,0 +1,1266 @@
+---
+- name: Configure Cisco ACI Fabric Access Policies
+  hosts: apic
+  gather_facts: no
+  connection: local
+
+  vars:
+    aci_username: ansible_user
+
+  tasks:
+    # Interface Policy Definitions
+    - name: Create CDP Interface Policy - Disabled
+      cisco.aci.aci_interface_policy_cdp:
+        host: "{{ ansible_host }}"
+        username: "{{ aci_username }}"
+        password: "{{ ansible_password }}"
+        validate_certs: "{{ validate_certs }}"
+        use_ssl: yes
+        name: cdp_disabled
+        admin_state: no
+        state: present
+      retries: 3
+      delay: 2
+      register: result
+      until: result is not failed
+
+    - name: Create CDP Interface Policy - Enabled
+      cisco.aci.aci_interface_policy_cdp:
+        host: "{{ ansible_host }}"
+        username: "{{ aci_username }}"
+        password: "{{ ansible_password }}"
+        validate_certs: "{{ validate_certs }}"
+        use_ssl: yes
+        name: CDP-enabled
+        admin_state: yes
+        state: present
+      retries: 3
+      delay: 2
+      register: result
+      until: result is not failed
+
+    - name: Create LLDP Interface Policy - Enabled
+      cisco.aci.aci_interface_policy_lldp:
+        host: "{{ ansible_host }}"
+        username: "{{ aci_username }}"
+        password: "{{ ansible_password }}"
+        validate_certs: "{{ validate_certs }}"
+        use_ssl: yes
+        name: lldp-enabled
+        receive_state: yes
+        transmit_state: yes
+        state: present
+      retries: 3
+      delay: 2
+      register: result
+      until: result is not failed
+
+    - name: Create LLDP Interface Policy - Disabled
+      cisco.aci.aci_interface_policy_lldp:
+        host: "{{ ansible_host }}"
+        username: "{{ aci_username }}"
+        password: "{{ ansible_password }}"
+        validate_certs: "{{ validate_certs }}"
+        use_ssl: yes
+        name: lldp-disabled
+        receive_state: no
+        transmit_state: no
+        state: present
+      retries: 3
+      delay: 2
+      register: result
+      until: result is not failed
+
+    - name: Create Port Channel Policy - Mode Off
+      cisco.aci.aci_interface_policy_port_channel:
+        host: "{{ ansible_host }}"
+        username: "{{ aci_username }}"
+        password: "{{ ansible_password }}"
+        validate_certs: "{{ validate_certs }}"
+        use_ssl: yes
+        name: mode-off
+        mode: "off"
+        state: present
+      retries: 3
+      delay: 2
+      register: result
+      until: result is not failed
+
+    - name: Create Port Channel Policy - LACP Active
+      cisco.aci.aci_interface_policy_port_channel:
+        host: "{{ ansible_host }}"
+        username: "{{ aci_username }}"
+        password: "{{ ansible_password }}"
+        validate_certs: "{{ validate_certs }}"
+        use_ssl: yes
+        name: lacp_active
+        mode: active
+        state: present
+      retries: 3
+      delay: 2
+      register: result
+      until: result is not failed
+
+    - name: Create Spanning Tree Interface Policy - BPDU Filter Enabled
+      cisco.aci.aci_interface_policy_spanning_tree:
+        host: "{{ ansible_host }}"
+        username: "{{ aci_username }}"
+        password: "{{ ansible_password }}"
+        validate_certs: "{{ validate_certs }}"
+        use_ssl: yes
+        name: bpdu_filter_enabled
+        bpdu_filter: yes
+        state: present
+      retries: 3
+      delay: 2
+      register: result
+      until: result is not failed
+
+    - name: Create Storm Control Interface Policy - BUM10_drop
+      cisco.aci.aci_interface_policy_storm_control:
+        host: "{{ ansible_host }}"
+        username: "{{ aci_username }}"
+        password: "{{ ansible_password }}"
+        validate_certs: "{{ validate_certs }}"
+        use_ssl: yes
+        storm_control_policy: bum10_drop
+        storm_control_action: drop
+        all_types_configuration:
+          rate_type: percentage
+          rate: 10
+          burst_rate: 10
+        state: present
+      retries: 3
+      delay: 2
+      register: result
+      until: result is not failed
+
+    - name: Create Link Level Policy - 25G Auto
+      cisco.aci.aci_interface_policy_link_level:
+        host: "{{ ansible_host }}"
+        username: "{{ aci_username }}"
+        password: "{{ ansible_password }}"
+        validate_certs: "{{ validate_certs }}"
+        use_ssl: yes
+        name: 25G-auto
+        speed: 25G
+        auto_negotiation: yes
+        state: present
+      retries: 3
+      delay: 2
+      register: result
+      until: result is not failed
+
+    - name: Pause after interface policies
+      pause:
+        seconds: 3
+
+    # VLAN Pool
+    - name: Create VLAN Pool - pswt_stvlan
+      cisco.aci.aci_vlan_pool:
+        host: "{{ ansible_host }}"
+        username: "{{ aci_username }}"
+        password: "{{ ansible_password }}"
+        validate_certs: "{{ validate_certs }}"
+        use_ssl: yes
+        pool: pswt_stvlan
+        pool_allocation_mode: static
+        state: present
+      retries: 3
+      delay: 2
+      register: result
+      until: result is not failed
+
+    - name: Add VLAN Ranges to pswt_stvlan Pool
+      cisco.aci.aci_vlan_pool_encap_block:
+        host: "{{ ansible_host }}"
+        username: "{{ aci_username }}"
+        password: "{{ ansible_password }}"
+        validate_certs: "{{ validate_certs }}"
+        use_ssl: yes
+        pool: pswt_stvlan
+        pool_allocation_mode: static
+        block_start: "{{ item.start }}"
+        block_end: "{{ item.end }}"
+        state: present
+      loop:
+        - { start: 20, end: 22 }
+        - { start: 24, end: 24 }
+        - { start: 25, end: 31 }
+        - { start: 40, end: 43 }
+        - { start: 45, end: 59 }
+        - { start: 60, end: 63 }
+        - { start: 65, end: 69 }
+        - { start: 70, end: 73 }
+        - { start: 80, end: 82 }
+        - { start: 91, end: 91 }
+        - { start: 92, end: 94 }
+        - { start: 100, end: 101 }
+        - { start: 421, end: 421 }
+        - { start: 801, end: 802 }
+        - { start: 805, end: 805 }
+        - { start: 1400, end: 2999 }
+        - { start: 3034, end: 3047 }
+        - { start: 3052, end: 3505 }
+        - { start: 3510, end: 3817 }
+        - { start: 3820, end: 3827 }
+      throttle: 1
+      retries: 3
+      delay: 2
+      register: vlan_result
+      until: vlan_result is not failed
+
+    - name: Pause after VLAN pool
+      pause:
+        seconds: 3
+
+    # Physical Domain
+    - name: Create Physical Domain - pswt_esxi_phydom
+      cisco.aci.aci_domain:
+        host: "{{ ansible_host }}"
+        username: "{{ aci_username }}"
+        password: "{{ ansible_password }}"
+        validate_certs: "{{ validate_certs }}"
+        use_ssl: yes
+        domain: pswt_esxi_phydom
+        domain_type: phys
+        state: present
+      retries: 3
+      delay: 2
+      register: result
+      until: result is not failed
+
+    - name: Bind VLAN Pool to Physical Domain
+      cisco.aci.aci_domain_to_vlan_pool:
+        host: "{{ ansible_host }}"
+        username: "{{ aci_username }}"
+        password: "{{ ansible_password }}"
+        validate_certs: "{{ validate_certs }}"
+        use_ssl: yes
+        domain: pswt_esxi_phydom
+        domain_type: phys
+        pool: pswt_stvlan
+        pool_allocation_mode: static
+        state: present
+      retries: 3
+      delay: 2
+      register: result
+      until: result is not failed
+
+    # AAEP
+    - name: Create AAEP - pswt_esxi_aaep
+      cisco.aci.aci_aep:
+        host: "{{ ansible_host }}"
+        username: "{{ aci_username }}"
+        password: "{{ ansible_password }}"
+        validate_certs: "{{ validate_certs }}"
+        use_ssl: yes
+        aep: pswt_esxi_aaep
+        state: present
+      retries: 3
+      delay: 2
+      register: result
+      until: result is not failed
+
+    - name: Bind Physical Domain to AAEP
+      cisco.aci.aci_aep_to_domain:
+        host: "{{ ansible_host }}"
+        username: "{{ aci_username }}"
+        password: "{{ ansible_password }}"
+        validate_certs: "{{ validate_certs }}"
+        use_ssl: yes
+        aep: pswt_esxi_aaep
+        domain: pswt_esxi_phydom
+        domain_type: phys
+        state: present
+      retries: 3
+      delay: 2
+      register: result
+      until: result is not failed
+
+    - name: Pause after domain configuration
+      pause:
+        seconds: 3
+
+    # Interface Policy Groups - VPC
+    - name: Create VPC Interface Policy Group - riv000_data_apg
+      cisco.aci.aci_interface_policy_leaf_policy_group:
+        host: "{{ ansible_host }}"
+        username: "{{ aci_username }}"
+        password: "{{ ansible_password }}"
+        validate_certs: "{{ validate_certs }}"
+        use_ssl: yes
+        policy_group: riv000_data_apg
+        lag_type: node
+        aep: pswt_esxi_aaep
+        cdp_policy: CDP-enabled
+        lldp_policy: lldp-enabled
+        link_level_policy: 25G-auto
+        port_channel_policy: static-on
+        storm_control_interface_policy: bum10_drop
+        stp_interface_policy: bpdu_filter_enabled
+        state: present
+      retries: 3
+      delay: 2
+      register: result
+      until: result is not failed
+
+    # Interface Policy Groups - Leaf Access Port
+    - name: Create Leaf Access Port Policy Group - riv000_storage_apg
+      cisco.aci.aci_interface_policy_leaf_policy_group:
+        host: "{{ ansible_host }}"
+        username: "{{ aci_username }}"
+        password: "{{ ansible_password }}"
+        validate_certs: "{{ validate_certs }}"
+        use_ssl: yes
+        policy_group: riv000_storage_apg
+        lag_type: leaf
+        aep: pswt_esxi_aaep
+        cdp_policy: CDP-enabled
+        lldp_policy: lldp-enabled
+        link_level_policy: 25G-auto
+        stp_interface_policy: bpdu_filter_enabled
+        state: present
+      retries: 3
+      delay: 2
+      register: result
+      until: result is not failed
+
+    # Interface Policy Groups - Leaf Access Port (vp000 a-series)
+    - name: Create Leaf Access Port Policy Groups - vp000_a series
+      cisco.aci.aci_interface_policy_leaf_policy_group:
+        host: "{{ ansible_host }}"
+        username: "{{ aci_username }}"
+        password: "{{ ansible_password }}"
+        validate_certs: "{{ validate_certs }}"
+        use_ssl: yes
+        policy_group: "{{ item }}"
+        lag_type: leaf
+        aep: pswt_esxi_aaep
+        cdp_policy: cdp_disabled
+        lldp_policy: lldp-disabled
+        link_level_policy: 25G-auto
+        stp_interface_policy: bpdu_filter_enabled
+        state: present
+      loop:
+        - vp000_a01_apg
+        - vp000_a02_apg
+        - vp000_a03_apg
+        - vp000_a04_APG
+      retries: 3
+      delay: 2
+      register: result
+      until: result is not failed
+
+    # Interface Policy Groups - Leaf Access Port (vp000 b-series)
+    - name: Create Leaf Access Port Policy Groups - vp000_b series
+      cisco.aci.aci_interface_policy_leaf_policy_group:
+        host: "{{ ansible_host }}"
+        username: "{{ aci_username }}"
+        password: "{{ ansible_password }}"
+        validate_certs: "{{ validate_certs }}"
+        use_ssl: yes
+        policy_group: "{{ item }}"
+        lag_type: leaf
+        aep: pswt_esxi_aaep
+        cdp_policy: cdp_disabled
+        lldp_policy: lldp-disabled
+        link_level_policy: 25G-auto
+        stp_interface_policy: bpdu_filter_enabled
+        state: present
+      loop:
+        - vp000_B01_APG
+        - vp000_B02_APG
+        - vp000_b03_apg
+        - vp000_b04_apg
+      retries: 3
+      delay: 2
+      register: result
+      until: result is not failed
+
+    - name: Pause after policy groups
+      pause:
+        seconds: 3
+
+    # Interface Profiles
+    - name: Create Leaf Interface Profile - L1101_IntProf
+      cisco.aci.aci_interface_policy_leaf_profile:
+        host: "{{ ansible_host }}"
+        username: "{{ aci_username }}"
+        password: "{{ ansible_password }}"
+        validate_certs: "{{ validate_certs }}"
+        use_ssl: yes
+        leaf_interface_profile: L1101_IntProf
+        state: present
+      retries: 3
+      delay: 2
+      register: result
+      until: result is not failed
+
+    - name: Create Leaf Interface Profile - L1102_IntProf
+      cisco.aci.aci_interface_policy_leaf_profile:
+        host: "{{ ansible_host }}"
+        username: "{{ aci_username }}"
+        password: "{{ ansible_password }}"
+        validate_certs: "{{ validate_certs }}"
+        use_ssl: yes
+        leaf_interface_profile: L1102_IntProf
+        state: present
+      retries: 3
+      delay: 2
+      register: result
+      until: result is not failed
+
+    - name: Create Leaf Interface Profile - L1101_1102_IntProf
+      cisco.aci.aci_interface_policy_leaf_profile:
+        host: "{{ ansible_host }}"
+        username: "{{ aci_username }}"
+        password: "{{ ansible_password }}"
+        validate_certs: "{{ validate_certs }}"
+        use_ssl: yes
+        leaf_interface_profile: L1101_1102_IntProf
+        state: present
+      retries: 3
+      delay: 2
+      register: result
+      until: result is not failed
+
+    # Interface Selectors for L1101_1102_IntProf
+    - name: Create Interface Selector - Eth1_1 on L1101_1102_IntProf
+      cisco.aci.aci_access_port_to_interface_policy_leaf_profile:
+        host: "{{ ansible_host }}"
+        username: "{{ aci_username }}"
+        password: "{{ ansible_password }}"
+        validate_certs: "{{ validate_certs }}"
+        use_ssl: yes
+        leaf_interface_profile: L1101_1102_IntProf
+        access_port_selector: Eth1_1
+        leaf_port_blk: block1
+        from_port: 1
+        to_port: 1
+        from_card: 1
+        to_card: 1
+        policy_group: riv000_data_apg
+        interface_type: vpc
+        state: present
+      retries: 3
+      delay: 2
+      register: result
+      until: result is not failed
+
+    # Interface Selectors for L1101_IntProf
+    - name: Create Interface Selectors for L1101_IntProf
+      cisco.aci.aci_access_port_to_interface_policy_leaf_profile:
+        host: "{{ ansible_host }}"
+        username: "{{ aci_username }}"
+        password: "{{ ansible_password }}"
+        validate_certs: "{{ validate_certs }}"
+        use_ssl: yes
+        leaf_interface_profile: L1101_IntProf
+        access_port_selector: "{{ item.name }}"
+        leaf_port_blk: block1
+        from_port: "{{ item.port }}"
+        to_port: "{{ item.port }}"
+        from_card: 1
+        to_card: 1
+        policy_group: "{{ item.policy_group }}"
+        state: present
+      loop:
+        - { name: Eth1_2, port: 2, policy_group: riv000_storage_apg }
+        - { name: Eth1_33, port: 33, policy_group: vp000_a01_apg }
+        - { name: Eth1_34, port: 34, policy_group: vp000_a02_apg }
+        - { name: Eth1_35, port: 35, policy_group: vp000_a03_apg }
+        - { name: Eth1_36, port: 36, policy_group: vp000_a04_apg }
+      retries: 3
+      delay: 2
+      register: result
+      until: result is not failed
+
+    # Interface Selectors for L1102_IntProf
+    - name: Create Interface Selectors for L1102_IntProf
+      cisco.aci.aci_access_port_to_interface_policy_leaf_profile:
+        host: "{{ ansible_host }}"
+        username: "{{ aci_username }}"
+        password: "{{ ansible_password }}"
+        validate_certs: "{{ validate_certs }}"
+        use_ssl: yes
+        leaf_interface_profile: L1102_IntProf
+        access_port_selector: "{{ item.name }}"
+        leaf_port_blk: block1
+        from_port: "{{ item.port }}"
+        to_port: "{{ item.port }}"
+        from_card: 1
+        to_card: 1
+        policy_group: "{{ item.policy_group }}"
+        state: present
+      loop:
+        - { name: Eth1_2, port: 2, policy_group: riv000_storage_apg }
+        - { name: Eth1_33, port: 33, policy_group: vp000_b01_apg }
+        - { name: Eth1_34, port: 34, policy_group: vp000_b02_apg }
+        - { name: Eth1_35, port: 35, policy_group: vp000_b03_apg }
+        - { name: Eth1_36, port: 36, policy_group: vp000_b04_apg }
+      retries: 3
+      delay: 2
+      register: result
+      until: result is not failed
+
+    - name: Pause after interface selectors
+      pause:
+        seconds: 3
+
+    # Switch Profiles
+    - name: Create Leaf Switch Profile - L1101_SwProf
+      cisco.aci.aci_switch_policy_leaf_profile:
+        host: "{{ ansible_host }}"
+        username: "{{ aci_username }}"
+        password: "{{ ansible_password }}"
+        validate_certs: "{{ validate_certs }}"
+        use_ssl: yes
+        leaf_profile: L1101_SwProf
+        state: present
+      retries: 3
+      delay: 2
+      register: result
+      until: result is not failed
+
+    - name: Create Leaf Switch Profile - L1102_SwProf
+      cisco.aci.aci_switch_policy_leaf_profile:
+        host: "{{ ansible_host }}"
+        username: "{{ aci_username }}"
+        password: "{{ ansible_password }}"
+        validate_certs: "{{ validate_certs }}"
+        use_ssl: yes
+        leaf_profile: L1102_SwProf
+        state: present
+      retries: 3
+      delay: 2
+      register: result
+      until: result is not failed
+
+    - name: Create Leaf Switch Profile - L1101_1102_SwProf
+      cisco.aci.aci_switch_policy_leaf_profile:
+        host: "{{ ansible_host }}"
+        username: "{{ aci_username }}"
+        password: "{{ ansible_password }}"
+        validate_certs: "{{ validate_certs }}"
+        use_ssl: yes
+        leaf_profile: L1101_1102_SwProf
+        state: present
+      retries: 3
+      delay: 2
+      register: result
+      until: result is not failed
+
+    # Leaf Selectors
+    - name: Create Leaf Selector - L1101 in L1101_SwProf
+      cisco.aci.aci_switch_leaf_selector:
+        host: "{{ ansible_host }}"
+        username: "{{ aci_username }}"
+        password: "{{ ansible_password }}"
+        validate_certs: "{{ validate_certs }}"
+        use_ssl: yes
+        leaf_profile: L1101_SwProf
+        leaf: L1101
+        leaf_node_blk: block1
+        from: 1101
+        to: 1101
+        state: present
+      retries: 3
+      delay: 2
+      register: result
+      until: result is not failed
+
+    - name: Bind Interface Profile to L1101_SwProf
+      cisco.aci.aci_interface_selector_to_switch_policy_leaf_profile:
+        host: "{{ ansible_host }}"
+        username: "{{ aci_username }}"
+        password: "{{ ansible_password }}"
+        validate_certs: "{{ validate_certs }}"
+        use_ssl: yes
+        leaf_profile: L1101_SwProf
+        interface_selector: L1101_IntProf
+        state: present
+      retries: 3
+      delay: 2
+      register: result
+      until: result is not failed
+
+    - name: Create Leaf Selector - L1102 in L1102_SwProf
+      cisco.aci.aci_switch_leaf_selector:
+        host: "{{ ansible_host }}"
+        username: "{{ aci_username }}"
+        password: "{{ ansible_password }}"
+        validate_certs: "{{ validate_certs }}"
+        use_ssl: yes
+        leaf_profile: L1102_SwProf
+        leaf: L1102
+        leaf_node_blk: block1
+        from: 1102
+        to: 1102
+        state: present
+      retries: 3
+      delay: 2
+      register: result
+      until: result is not failed
+
+    - name: Bind Interface Profile to L1102_SwProf
+      cisco.aci.aci_interface_selector_to_switch_policy_leaf_profile:
+        host: "{{ ansible_host }}"
+        username: "{{ aci_username }}"
+        password: "{{ ansible_password }}"
+        validate_certs: "{{ validate_certs }}"
+        use_ssl: yes
+        leaf_profile: L1102_SwProf
+        interface_selector: L1102_IntProf
+        state: present
+      retries: 3
+      delay: 2
+      register: result
+      until: result is not failed
+
+    - name: Create Leaf Selector - L1101_L1102 in L1101_1102_SwProf
+      cisco.aci.aci_switch_leaf_selector:
+        host: "{{ ansible_host }}"
+        username: "{{ aci_username }}"
+        password: "{{ ansible_password }}"
+        validate_certs: "{{ validate_certs }}"
+        use_ssl: yes
+        leaf_profile: L1101_1102_SwProf
+        leaf: L1101_L1102
+        leaf_node_blk: block1
+        from: 1101
+        to: 1102
+        state: present
+      retries: 3
+      delay: 2
+      register: result
+      until: result is not failed
+
+    - name: Bind Interface Profile to L1101_1102_SwProf
+      cisco.aci.aci_interface_selector_to_switch_policy_leaf_profile:
+        host: "{{ ansible_host }}"
+        username: "{{ aci_username }}"
+        password: "{{ ansible_password }}"
+        validate_certs: "{{ validate_certs }}"
+        use_ssl: yes
+        leaf_profile: L1101_1102_SwProf
+        interface_selector: L1101_1102_IntProf
+        state: present
+      retries: 3
+      delay: 2
+      register: result
+      until: result is not failed
+
+    - name: Pause after switch profiles
+      pause:
+        seconds: 5
+
+    # Tenant Configuration
+    - name: Create Tenant - pswt
+      cisco.aci.aci_tenant:
+        host: "{{ ansible_host }}"
+        username: "{{ aci_username }}"
+        password: "{{ ansible_password }}"
+        validate_certs: "{{ validate_certs }}"
+        use_ssl: yes
+        tenant: pswt
+        state: present
+      retries: 3
+      delay: 2
+      register: result
+      until: result is not failed
+
+    # VRF
+    - name: Create VRF - ops_vrf
+      cisco.aci.aci_vrf:
+        host: "{{ ansible_host }}"
+        username: "{{ aci_username }}"
+        password: "{{ ansible_password }}"
+        validate_certs: "{{ validate_certs }}"
+        use_ssl: yes
+        tenant: pswt
+        vrf: ops_vrf
+        state: present
+      retries: 3
+      delay: 2
+      register: result
+      until: result is not failed
+
+    # Bridge Domains
+    - name: Create Bridge Domain - ops_vlan20_bd
+      cisco.aci.aci_bd:
+        host: "{{ ansible_host }}"
+        username: "{{ aci_username }}"
+        password: "{{ ansible_password }}"
+        validate_certs: "{{ validate_certs }}"
+        use_ssl: yes
+        tenant: pswt
+        bd: ops_vlan20_bd
+        vrf: ops_vrf
+        enable_routing: no
+        state: present
+      retries: 3
+      delay: 2
+      register: result
+      until: result is not failed
+
+    - name: Create Bridge Domain - ops_vlan24_bd
+      cisco.aci.aci_bd:
+        host: "{{ ansible_host }}"
+        username: "{{ aci_username }}"
+        password: "{{ ansible_password }}"
+        validate_certs: "{{ validate_certs }}"
+        use_ssl: yes
+        tenant: pswt
+        bd: ops_vlan24_bd
+        vrf: ops_vrf
+        enable_routing: no
+        state: present
+      retries: 3
+      delay: 2
+      register: result
+      until: result is not failed
+
+    - name: Create Bridge Domains with Unicast Routing disabled
+      cisco.aci.aci_bd:
+        host: "{{ ansible_host }}"
+        username: "{{ aci_username }}"
+        password: "{{ ansible_password }}"
+        validate_certs: "{{ validate_certs }}"
+        use_ssl: yes
+        tenant: pswt
+        bd: "{{ item }}"
+        vrf: ops_vrf
+        enable_routing: no
+        state: present
+      loop:
+        - ops_vlan25_bd
+        - ops_vlan26_bd
+        - ops_vlan27_bd
+        - ops_vlan28_bd
+        - ops_vlan29_bd
+        - ops_vlan30_bd
+        - ops_vlan70_bd
+        - ops_vlan80_bd
+        - ops_vlan91_bd
+        - ops_sons_bd
+      retries: 3
+      delay: 2
+      register: result
+      until: result is not failed
+
+    - name: Create Bridge Domains with default routing (ops_vlan31_bd and ops_vlan101_bd)
+      cisco.aci.aci_bd:
+        host: "{{ ansible_host }}"
+        username: "{{ aci_username }}"
+        password: "{{ ansible_password }}"
+        validate_certs: "{{ validate_certs }}"
+        use_ssl: yes
+        tenant: pswt
+        bd: "{{ item }}"
+        vrf: ops_vrf
+        state: present
+      loop:
+        - ops_vlan31_bd
+        - ops_vlan101_bd
+      retries: 3
+      delay: 2
+      register: result
+      until: result is not failed
+
+    - name: Pause after bridge domains
+      pause:
+        seconds: 3
+
+    # Application Profile
+    - name: Create Application Profile - pswt_app
+      cisco.aci.aci_ap:
+        host: "{{ ansible_host }}"
+        username: "{{ aci_username }}"
+        password: "{{ ansible_password }}"
+        validate_certs: "{{ validate_certs }}"
+        use_ssl: yes
+        tenant: pswt
+        ap: pswt_app
+        state: present
+      retries: 3
+      delay: 2
+      register: result
+      until: result is not failed
+
+    # EPGs without Intra-EPG Isolation
+    - name: Create EPG - ops_vlan22_epg
+      cisco.aci.aci_epg:
+        host: "{{ ansible_host }}"
+        username: "{{ aci_username }}"
+        password: "{{ ansible_password }}"
+        validate_certs: "{{ validate_certs }}"
+        use_ssl: yes
+        tenant: pswt
+        ap: pswt_app
+        epg: ops_vlan22_epg
+        bd: ops_vlan20_bd
+        state: present
+      retries: 3
+      delay: 2
+      register: result
+      until: result is not failed
+
+    - name: Create EPG - ops_vlan24_epg
+      cisco.aci.aci_epg:
+        host: "{{ ansible_host }}"
+        username: "{{ aci_username }}"
+        password: "{{ ansible_password }}"
+        validate_certs: "{{ validate_certs }}"
+        use_ssl: yes
+        tenant: pswt
+        ap: pswt_app
+        epg: ops_vlan24_epg
+        bd: ops_vlan24_bd
+        state: present
+      retries: 3
+      delay: 2
+      register: result
+      until: result is not failed
+
+    - name: Create EPGs for VLANs 25-31
+      cisco.aci.aci_epg:
+        host: "{{ ansible_host }}"
+        username: "{{ aci_username }}"
+        password: "{{ ansible_password }}"
+        validate_certs: "{{ validate_certs }}"
+        use_ssl: yes
+        tenant: pswt
+        ap: pswt_app
+        epg: "{{ item.epg }}"
+        bd: "{{ item.bd }}"
+        state: present
+      loop:
+        - { epg: ops_vlan25_epg, bd: ops_vlan25_bd }
+        - { epg: ops_vlan26_epg, bd: ops_vlan26_bd }
+        - { epg: ops_vlan27_epg, bd: ops_vlan27_bd }
+        - { epg: ops_vlan28_epg, bd: ops_vlan28_bd }
+        - { epg: ops_vlan29_epg, bd: ops_vlan29_bd }
+        - { epg: ops_vlan30_epg, bd: ops_vlan30_bd }
+        - { epg: ops_vlan31_epg, bd: ops_vlan31_bd }
+      retries: 3
+      delay: 2
+      register: result
+      until: result is not failed
+
+    - name: Create EPGs for VLAN 70, 72, 80, 82, 91
+      cisco.aci.aci_epg:
+        host: "{{ ansible_host }}"
+        username: "{{ aci_username }}"
+        password: "{{ ansible_password }}"
+        validate_certs: "{{ validate_certs }}"
+        use_ssl: yes
+        tenant: pswt
+        ap: pswt_app
+        epg: "{{ item.epg }}"
+        bd: "{{ item.bd }}"
+        state: present
+      loop:
+        - { epg: ops_vlan70_epg, bd: ops_vlan70_bd }
+        - { epg: ops_vlan72_epg, bd: ops_vlan70_bd }
+        - { epg: ops_vlan80_epg, bd: ops_vlan80_bd }
+        - { epg: ops_vlan82_epg, bd: ops_vlan80_bd }
+        - { epg: ops_vlan91_epg, bd: ops_vlan91_bd }
+      retries: 3
+      delay: 2
+      register: result
+      until: result is not failed
+
+    - name: Create EPG - ops_vlan101_epg
+      cisco.aci.aci_epg:
+        host: "{{ ansible_host }}"
+        username: "{{ aci_username }}"
+        password: "{{ ansible_password }}"
+        validate_certs: "{{ validate_certs }}"
+        use_ssl: yes
+        tenant: pswt
+        ap: pswt_app
+        epg: ops_vlan101_epg
+        bd: ops_vlan101_bd
+        state: present
+      retries: 3
+      delay: 2
+      register: result
+      until: result is not failed
+
+    # EPGs with Intra-EPG Isolation
+    - name: Create EPG - ops_vlan21_epg (with Intra-EPG Isolation)
+      cisco.aci.aci_epg:
+        host: "{{ ansible_host }}"
+        username: "{{ aci_username }}"
+        password: "{{ ansible_password }}"
+        validate_certs: "{{ validate_certs }}"
+        use_ssl: yes
+        tenant: pswt
+        ap: pswt_app
+        epg: ops_vlan21_epg
+        bd: ops_vlan20_bd
+        intra_epg_isolation: enforced
+        state: present
+      retries: 3
+      delay: 2
+      register: result
+      until: result is not failed
+
+    - name: Create EPG - ops_vlan71_epg (with Intra-EPG Isolation)
+      cisco.aci.aci_epg:
+        host: "{{ ansible_host }}"
+        username: "{{ aci_username }}"
+        password: "{{ ansible_password }}"
+        validate_certs: "{{ validate_certs }}"
+        use_ssl: yes
+        tenant: pswt
+        ap: pswt_app
+        epg: ops_vlan71_epg
+        bd: ops_vlan70_bd
+        intra_epg_isolation: enforced
+        state: present
+      retries: 3
+      delay: 2
+      register: result
+      until: result is not failed
+
+    - name: Create EPG - ops_vlan81_epg (with Intra-EPG Isolation)
+      cisco.aci.aci_epg:
+        host: "{{ ansible_host }}"
+        username: "{{ aci_username }}"
+        password: "{{ ansible_password }}"
+        validate_certs: "{{ validate_certs }}"
+        use_ssl: yes
+        tenant: pswt
+        ap: pswt_app
+        epg: ops_vlan81_epg
+        bd: ops_vlan80_bd
+        intra_epg_isolation: enforced
+        state: present
+      retries: 3
+      delay: 2
+      register: result
+      until: result is not failed
+
+    - name: Pause after EPGs
+      pause:
+        seconds: 3
+
+    # Domain Bindings for EPGs that need them
+    - name: Bind Physical Domain to ops_vlan31_epg
+      cisco.aci.aci_epg_to_domain:
+        host: "{{ ansible_host }}"
+        username: "{{ aci_username }}"
+        password: "{{ ansible_password }}"
+        validate_certs: "{{ validate_certs }}"
+        use_ssl: yes
+        tenant: pswt
+        ap: pswt_app
+        epg: ops_vlan31_epg
+        domain: pswt_esxi_phydom
+        domain_type: phys
+        state: present
+      retries: 3
+      delay: 2
+      register: result
+      until: result is not failed
+
+    - name: Bind Physical Domain to ops_vlan101_epg
+      cisco.aci.aci_epg_to_domain:
+        host: "{{ ansible_host }}"
+        username: "{{ aci_username }}"
+        password: "{{ ansible_password }}"
+        validate_certs: "{{ validate_certs }}"
+        use_ssl: yes
+        tenant: pswt
+        ap: pswt_app
+        epg: ops_vlan101_epg
+        domain: pswt_esxi_phydom
+        domain_type: phys
+        state: present
+      retries: 3
+      delay: 2
+      register: result
+      until: result is not failed
+
+    # Subnets
+    - name: Add Subnet to ops_vlan31_epg
+      cisco.aci.aci_epg_subnet:
+        host: "{{ ansible_host }}"
+        username: "{{ aci_username }}"
+        password: "{{ ansible_password }}"
+        validate_certs: "{{ validate_certs }}"
+        use_ssl: yes
+        tenant: pswt
+        ap: pswt_app
+        epg: ops_vlan31_epg
+        gateway: 192.168.12.1
+        mask: 22
+        scope: public
+        state: present
+      retries: 3
+      delay: 2
+      register: result
+      until: result is not failed
+
+    - name: Add Subnet to ops_vlan101_epg
+      cisco.aci.aci_epg_subnet:
+        host: "{{ ansible_host }}"
+        username: "{{ aci_username }}"
+        password: "{{ ansible_password }}"
+        validate_certs: "{{ validate_certs }}"
+        use_ssl: yes
+        tenant: pswt
+        ap: pswt_app
+        epg: ops_vlan101_epg
+        gateway: 10.1.0.1
+        mask: 24
+        scope: public
+        state: present
+      retries: 3
+      delay: 2
+      register: result
+      until: result is not failed
+
+    - name: Pause before static bindings
+      pause:
+        seconds: 3
+
+    # Static Port Bindings - VPC (Virtual Port Channel)
+    - name: Bind ops_vlan22_epg to VPC
+      cisco.aci.aci_static_binding_to_epg:
+        host: "{{ ansible_host }}"
+        username: "{{ aci_username }}"
+        password: "{{ ansible_password }}"
+        validate_certs: "{{ validate_certs }}"
+        use_ssl: yes
+        tenant: pswt
+        ap: pswt_app
+        epg: ops_vlan22_epg
+        interface_type: vpc
+        pod_id: 1
+        leafs: 1101-1102
+        interface: riv000_data_apg
+        encap_id: 22
+        deploy_immediacy: immediate
+        mode: regular
+        state: present
+      retries: 3
+      delay: 2
+      register: result
+      until: result is not failed
+
+    - name: Bind VPC static ports to EPGs (VLAN 25-31, 70, 72, 80, 82, 91)
+      cisco.aci.aci_static_binding_to_epg:
+        host: "{{ ansible_host }}"
+        username: "{{ aci_username }}"
+        password: "{{ ansible_password }}"
+        validate_certs: "{{ validate_certs }}"
+        use_ssl: yes
+        tenant: pswt
+        ap: pswt_app
+        epg: "{{ item.epg }}"
+        interface_type: vpc
+        pod_id: 1
+        leafs: 1101-1102
+        interface: riv000_data_apg
+        encap_id: "{{ item.vlan }}"
+        deploy_immediacy: immediate
+        mode: regular
+        state: present
+      loop:
+        - { epg: ops_vlan25_epg, vlan: 25 }
+        - { epg: ops_vlan26_epg, vlan: 26 }
+        - { epg: ops_vlan27_epg, vlan: 27 }
+        - { epg: ops_vlan28_epg, vlan: 28 }
+        - { epg: ops_vlan29_epg, vlan: 29 }
+        - { epg: ops_vlan30_epg, vlan: 30 }
+        - { epg: ops_vlan31_epg, vlan: 31 }
+        - { epg: ops_vlan70_epg, vlan: 70 }
+        - { epg: ops_vlan72_epg, vlan: 72 }
+        - { epg: ops_vlan80_epg, vlan: 80 }
+        - { epg: ops_vlan82_epg, vlan: 82 }
+        - { epg: ops_vlan91_epg, vlan: 91 }
+        - { epg: ops_vlan101_epg, vlan: 101 }
+      retries: 3
+      delay: 2
+      register: result
+      until: result is not failed
+
+    # Static Port Bindings - Individual Ports for ops_vlan24_epg
+    - name: Bind ops_vlan24_epg to L1101 ports
+      cisco.aci.aci_static_binding_to_epg:
+        host: "{{ ansible_host }}"
+        username: "{{ aci_username }}"
+        password: "{{ ansible_password }}"
+        validate_certs: "{{ validate_certs }}"
+        use_ssl: yes
+        tenant: pswt
+        ap: pswt_app
+        epg: ops_vlan24_epg
+        interface_type: switch_port
+        pod_id: 1
+        leafs: 1101
+        interface: "1/{{ item }}"
+        encap_id: 24
+        deploy_immediacy: immediate
+        mode: regular
+        state: present
+      loop:
+        - 2
+        - 33
+        - 34
+        - 35
+        - 36
+      retries: 3
+      delay: 2
+      register: result
+      until: result is not failed
+
+    - name: Bind ops_vlan24_epg to L1102 ports
+      cisco.aci.aci_static_binding_to_epg:
+        host: "{{ ansible_host }}"
+        username: "{{ aci_username }}"
+        password: "{{ ansible_password }}"
+        validate_certs: "{{ validate_certs }}"
+        use_ssl: yes
+        tenant: pswt
+        ap: pswt_app
+        epg: ops_vlan24_epg
+        interface_type: switch_port
+        pod_id: 1
+        leafs: 1102
+        interface: "1/{{ item }}"
+        encap_id: 24
+        deploy_immediacy: immediate
+        mode: regular
+        state: present
+      loop:
+        - 2
+        - 33
+        - 34
+        - 35
+        - 36
+      retries: 3
+      delay: 2
+      register: result
+      until: result is not failed
+
+    # Private VLAN Bindings (Primary/Secondary VLAN)
+    - name: Bind ops_vlan21_epg to VPC with Private VLAN (Primary 20, Secondary 21)
+      cisco.aci.aci_static_binding_to_epg:
+        host: "{{ ansible_host }}"
+        username: "{{ aci_username }}"
+        password: "{{ ansible_password }}"
+        validate_certs: "{{ validate_certs }}"
+        use_ssl: yes
+        tenant: pswt
+        ap: pswt_app
+        epg: ops_vlan21_epg
+        interface_type: vpc
+        pod_id: 1
+        leafs: 1101-1102
+        interface: riv000_data_apg
+        encap_id: 21
+        primary_encap_id: 20
+        deploy_immediacy: immediate
+        mode: regular
+        state: present
+      retries: 3
+      delay: 2
+      register: result
+      until: result is not failed
+
+    - name: Bind ops_vlan71_epg to VPC with Private VLAN (Primary 70, Secondary 71)
+      cisco.aci.aci_static_binding_to_epg:
+        host: "{{ ansible_host }}"
+        username: "{{ aci_username }}"
+        password: "{{ ansible_password }}"
+        validate_certs: "{{ validate_certs }}"
+        use_ssl: yes
+        tenant: pswt
+        ap: pswt_app
+        epg: ops_vlan71_epg
+        interface_type: vpc
+        pod_id: 1
+        leafs: 1101-1102
+        interface: riv000_data_apg
+        encap_id: 71
+        primary_encap_id: 70
+        deploy_immediacy: immediate
+        mode: regular
+        state: present
+      retries: 3
+      delay: 2
+      register: result
+      until: result is not failed
+
+    - name: Bind ops_vlan81_epg to VPC with Private VLAN (Primary 80, Secondary 81)
+      cisco.aci.aci_static_binding_to_epg:
+        host: "{{ ansible_host }}"
+        username: "{{ aci_username }}"
+        password: "{{ ansible_password }}"
+        validate_certs: "{{ validate_certs }}"
+        use_ssl: yes
+        tenant: pswt
+        ap: pswt_app
+        epg: ops_vlan81_epg
+        interface_type: vpc
+        pod_id: 1
+        leafs: 1101-1102
+        interface: riv000_data_apg
+        encap_id: 81
+        primary_encap_id: 80
+        deploy_immediacy: immediate
+        mode: regular
+        state: present
+      retries: 3
+      delay: 2
+      register: result
+      until: result is not failed
+
+    # EPGs for VLAN range 1400-2999 (ops_sons_bd)
+    - name: Create EPGs for VLAN range 1400-2999
+      cisco.aci.aci_epg:
+        host: "{{ ansible_host }}"
+        username: "{{ aci_username }}"
+        password: "{{ ansible_password }}"
+        validate_certs: "{{ validate_certs }}"
+        use_ssl: yes
+        tenant: pswt
+        ap: pswt_app
+        epg: "ops_vlan_{{ item }}_epg"
+        bd: ops_sons_bd
+        state: present
+      loop: "{{ range(1400, 3000) | list }}"
+      throttle: 5
+      retries: 3
+      delay: 2
+      register: result
+      until: result is not failed
+
+    - name: Bind EPGs (1400-2999) to VPC with respective VLANs
+      cisco.aci.aci_static_binding_to_epg:
+        host: "{{ ansible_host }}"
+        username: "{{ aci_username }}"
+        password: "{{ ansible_password }}"
+        validate_certs: "{{ validate_certs }}"
+        use_ssl: yes
+        tenant: pswt
+        ap: pswt_app
+        epg: "ops_vlan_{{ item }}_epg"
+        interface_type: vpc
+        pod_id: 1
+        leafs: 1101-1102
+        interface: riv000_data_apg
+        encap_id: "{{ item }}"
+        deploy_immediacy: immediate
+        mode: regular
+        state: present
+      loop: "{{ range(1400, 3000) | list }}"
+      throttle: 5
+      retries: 3
+      delay: 2
+      register: result
+      until: result is not failed
