@@ -23,7 +23,7 @@ pause_before_static_bindings: 3
 
 # Interface Policies
 cdp_policy_disabled: cdp_disabled
-cdp_policy_enabled: CDP-enabled
+cdp_policy_enabled: cdp-enabled
 lldp_policy_enabled: lldp-enabled
 lldp_policy_disabled: lldp-disabled
 port_channel_mode_off: mode-off
@@ -86,12 +86,12 @@ leaf_policy_groups_a:
   - vp000_a01_apg
   - vp000_a02_apg
   - vp000_a03_apg
-  - vp000_a04_APG
+  - vp000_a04_apg
 
 # Leaf Access Port Policy Groups - B Series
 leaf_policy_groups_b:
-  - vp000_B01_APG
-  - vp000_B02_APG
+  - vp000_b01_aPG
+  - vp000_b02_aPG
   - vp000_b03_apg
   - vp000_b04_apg
 
