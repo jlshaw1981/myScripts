@@ -1,4 +1,5 @@
 ---
+
 - name: Configure Cisco ACI Fabric Access Policies
   hosts: apic
   gather_facts: no
@@ -194,6 +195,20 @@
       delay: "{{ retry_delay }}"
       register: result
       until: result is not failed
+
+    - name: Configure VPC Protection Groups for Leaf Switches 1101 and 1102
+      cisco.aci.aci_switch_policy_vpc_protection_group:
+        host: "{{ ansible_host }}"
+        username: "{{ aci_username }}"
+        password: "{{ ansible_password }}"
+        validate_certs: "{{ validate_certs }}"
+        protection_group: "{{ protection_group_name }}"
+        protection_group_id: "{{ protection_group_id }}"
+        vpc_domain_policy: "{{ vpc_domain_policy }}"
+        switch_1_id: "{{ switch_1 }}"
+        switch_2_id: "{{ switch_2 }}"
+        state: present
+      delegate_to: localhost
 
     - name: Create Spanning Tree Interface Policy - BPDU Filter Enabled
       cisco.aci.aci_interface_policy_spanning_tree:
@@ -789,7 +804,7 @@
 
     # Static Port Bindings - VPC
     # Bind all VPC interfaces for standard EPGs
-    - name: Bind Standard EPGs to all VPC interfaces
+    - name: Bind EPGs to all VPC interfaces
       cisco.aci.aci_static_binding_to_epg:
         host: "{{ ansible_host }}"
         username: "{{ aci_username }}"
@@ -807,7 +822,7 @@
         deploy_immediacy: "{{ deploy_immediacy }}"
         mode: "{{ binding_mode }}"
         state: present
-      loop: "{{ vpc_standard_bindings | product(vpc_interfaces) | list }}"
+      loop: "{{ vpc_static_bindings | product(vpc_interfaces) | list }}"
       retries: "{{ retry_count }}"
       delay: "{{ retry_delay }}"
       register: result
@@ -932,3 +947,4 @@
       delay: "{{ retry_delay }}"
       register: result
       until: result is not failed
+

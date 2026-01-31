@@ -148,6 +148,13 @@ leaf_selector_l1101: L1101
 leaf_selector_l1102: L1102
 leaf_selector_l1101_1102: L1101_L1102
 
+# VPC Port Channel Security Policy
+protection_group_name: L1101_1102_VPC
+protection_group_id: 1
+vpc_domain_policy: default
+switch_1: 1101
+switch_2: 1102
+
 # Tenant Configuration
 tenant_name: pswt
 vrf_name: ops_vrf
@@ -250,55 +257,6 @@ epgs_vlan_70_series:
   - { epg: ops_vlan80_epg, bd: ops_vlan80_bd }
   - { epg: ops_vlan82_epg, bd: ops_vlan82_bd }
   - { epg: ops_vlan91_epg, bd: ops_vlan91_bd }
-
-# VPC Static Port Bindings - Standard EPGs
-vpc_standard_bindings:
-  - { epg: ops_vlan22_epg, vlan: 22 }
-  - { epg: ops_vlan25_epg, vlan: 25 }
-  - { epg: ops_vlan26_epg, vlan: 26 }
-  - { epg: ops_vlan27_epg, vlan: 27 }
-  - { epg: ops_vlan28_epg, vlan: 28 }
-  - { epg: ops_vlan29_epg, vlan: 29 }
-  - { epg: ops_vlan30_epg, vlan: 30 }
-  - { epg: ops_vlan31_epg, vlan: 31 }
-  - { epg: ops_vlan70_epg, vlan: 70 }
-  - { epg: ops_vlan72_epg, vlan: 72 }
-  - { epg: ops_vlan80_epg, vlan: 80 }
-  - { epg: ops_vlan82_epg, vlan: 82 }
-  - { epg: ops_vlan91_epg, vlan: 91 }
-  - { epg: ops_vlan101_epg, vlan: 101 }
-
-# Legacy VPC static bindings list (kept for backward compatibility)
-vpc_static_bindings_25_101:
-  - { epg: ops_vlan25_epg, vlan: 25 }
-  - { epg: ops_vlan26_epg, vlan: 26 }
-  - { epg: ops_vlan27_epg, vlan: 27 }
-  - { epg: ops_vlan28_epg, vlan: 28 }
-  - { epg: ops_vlan29_epg, vlan: 29 }
-  - { epg: ops_vlan30_epg, vlan: 30 }
-  - { epg: ops_vlan31_epg, vlan: 31 }
-  - { epg: ops_vlan70_epg, vlan: 70 }
-  - { epg: ops_vlan72_epg, vlan: 72 }
-  - { epg: ops_vlan80_epg, vlan: 80 }
-  - { epg: ops_vlan82_epg, vlan: 82 }
-  - { epg: ops_vlan91_epg, vlan: 91 }
-  - { epg: ops_vlan101_epg, vlan: 101 }
-
-vpc_static_bindings:
-  - { epg: ops_vlan22_epg, vlan: 22 }
-  - { epg: ops_vlan25_epg, vlan: 25 }
-  - { epg: ops_vlan26_epg, vlan: 26 }
-  - { epg: ops_vlan27_epg, vlan: 27 }
-  - { epg: ops_vlan28_epg, vlan: 28 }
-  - { epg: ops_vlan29_epg, vlan: 29 }
-  - { epg: ops_vlan30_epg, vlan: 30 }
-  - { epg: ops_vlan31_epg, vlan: 31 }
-  - { epg: ops_vlan70_epg, vlan: 70 }
-  - { epg: ops_vlan72_epg, vlan: 72 }
-  - { epg: ops_vlan80_epg, vlan: 80 }
-  - { epg: ops_vlan82_epg, vlan: 82 }
-  - { epg: ops_vlan91_epg, vlan: 91 }
-  - { epg: ops_vlan101_epg, vlan: 101 }
 
 # EPGs requiring Physical Domain Binding
 epgs_with_domain:
