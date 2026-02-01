@@ -739,8 +739,8 @@
       pause:
         seconds: "{{ pause_after_epgs }}"
 
-    # Bind Physical Domain to EPGs (VLAN 31 and 101)
-    - name: Bind Physical Domain to EPGs
+    # Bind Physical Domain to individual EPGs
+    - name: Bind Physical Domain to individual EPGs
       cisco.aci.aci_epg_to_domain:
         host: "{{ ansible_host }}"
         username: "{{ aci_username }}"
@@ -753,7 +753,28 @@
         domain: "{{ physical_domain }}"
         domain_type: "{{ domain_type }}"
         state: present
-      loop: "{{ epgs_with_domain }}"
+      loop: "{{ individual_epgs }}"
+      retries: "{{ retry_count }}"
+      delay: "{{ retry_delay }}"
+      register: result
+      until: result is not failed
+
+    - name: Bind Physical Domain to EPG ranges
+      cisco.aci.aci_epg_to_domain:
+        host: "{{ ansible_host }}"
+        username: "{{ aci_username }}"
+        password: "{{ ansible_password }}"
+        validate_certs: "{{ validate_certs }}"
+        use_ssl: yes
+        tenant: "{{ tenant_name }}"
+        ap: "{{ app_profile }}"
+        epg: "ops_vlan{{ item }}_epg"
+        domain: "{{ physical_domain }}"
+        domain_type: "{{ domain_type }}"
+        state: present
+      loop: "{{ epg_vlan_ids }}"
+      loop_control:
+        loop_var: item
       retries: "{{ retry_count }}"
       delay: "{{ retry_delay }}"
       register: result

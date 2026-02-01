@@ -259,9 +259,31 @@ epgs_vlan_70_series:
   - { epg: ops_vlan91_epg, bd: ops_vlan91_bd }
 
 # EPGs requiring Physical Domain Binding
-epgs_with_domain:
-  - ops_vlan31_epg
+# Individual EPGs
+individual_epgs:
+  - ops_vlan21_epg
+  - ops_vlan22_epg
+  - ops_vlan91_epg
   - ops_vlan101_epg
+
+# EPG Ranges - flattened list
+epg_vlan_ids: >-
+  {{
+    (range(24, 32) | list) +
+    (range(70, 73) | list) +
+    (range(80, 83) | list) +
+    (range(1400, 3000) | list)
+  }}
+
+#epg_ranges:
+#  - start: 24
+#    end: 31
+#  - start: 70
+#    end: 72
+#  - start: 80
+#      end: 82
+#  - start: 1400
+#    end: 2999
 
 # Subnet Configurations
 subnets:

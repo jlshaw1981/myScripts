@@ -300,7 +300,7 @@ private_vlan_bindings:
 
 # VLAN Range for SONS EPGs
 vlan_range_start: 1400
-vlan_range_end: 3000
+vlan_range_end: 2999
 sons_bridge_domain: ops_sons_bd
 
 # Leaf and Pod Configuration
@@ -315,6 +315,13 @@ interface_type_switch_port: switch_port
 
 # VPC Interface Name
 vpc_interface: riv000_data_apg
+  # - riv001_data_apg
+  # - riv002_data_apg
+  # - riv003_data_apg
+  # - riv004_data_apg
+  # - riv005_data_apg
+  # - riv006_data_apg
+  # - riv007_data_apg
 
 # Static Binding Defaults
 deploy_immediacy: immediate
