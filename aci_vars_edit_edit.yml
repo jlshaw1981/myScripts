@@ -1,0 +1,347 @@
+---
+# ACI Configuration Variables
+
+# Authentication
+aci_username: ansible_user
+
+# Retry and Throttle Settings
+retry_count: 3
+retry_delay: 2
+throttle_vlan_pool: 1
+throttle_large_loops: 5
+
+# Pause Durations (seconds)
+pause_after_ntp: 3
+pause_after_policies: 3
+pause_after_vlan_pool: 3
+pause_after_domain: 3
+pause_after_policy_groups: 3
+pause_after_interface_selectors: 3
+pause_after_switch_profiles: 5
+pause_after_bridge_domains: 3
+pause_after_epgs: 3
+pause_before_static_bindings: 3
+
+# NTP Configuration
+ntp_policy_name: ntp_pol
+ntp_admin_state: enabled
+ntp_server_state: disabled
+ntp_auth_state: disabled
+ntp_server_ip: 1.1.10.15
+ntp_mgmt_epg: default
+pod_policy_group_name: pod1_pg
+
+# Interface Policies
+cdp_policy_disabled: cdp_disabled
+cdp_policy_enabled: cdp-enabled
+lldp_policy_enabled: lldp-enabled
+lldp_policy_disabled: lldp-disabled
+port_channel_mode_off: mode-off
+port_channel_lacp_active: lacp_active
+stp_policy: bpdu_filter_enabled
+storm_control_policy: bum10_drop
+link_level_policy: 25G-auto
+
+# Storm Control Configuration
+storm_control_action: drop
+storm_control_rate_type: percentage
+storm_control_rate: 10
+storm_control_burst_rate: 10
+
+# Link Level Configuration
+link_speed: 25G
+auto_negotiation: yes
+
+# VLAN Pool
+vlan_pool_name: pswt_stvlan
+vlan_pool_allocation: static
+
+# VLAN Ranges
+vlan_ranges:
+  - { start: 20, end: 22 }
+  - { start: 24, end: 24 }
+  - { start: 25, end: 31 }
+  - { start: 40, end: 43 }
+  - { start: 45, end: 59 }
+  - { start: 60, end: 63 }
+  - { start: 65, end: 69 }
+  - { start: 70, end: 73 }
+  - { start: 80, end: 82 }
+  - { start: 91, end: 91 }
+  - { start: 92, end: 94 }
+  - { start: 100, end: 101 }
+  - { start: 421, end: 421 }
+  - { start: 801, end: 802 }
+  - { start: 805, end: 805 }
+  - { start: 1400, end: 2999 }
+  - { start: 3034, end: 3047 }
+  - { start: 3052, end: 3505 }
+  - { start: 3510, end: 3817 }
+  - { start: 3820, end: 3827 }
+
+# Physical Domain and AAEP
+physical_domain: pswt_esxi_phydom
+aaep_name: pswt_esxi_aaep
+domain_type: phys
+
+# Interface Policy Groups
+vpc_policy_group: riv000_data_apg
+storage_policy_group: riv000_storage_apg
+
+# Port Channel Policy (only for VPC)
+port_channel_policy_static: static-on
+
+# Leaf Access Port Policy Groups - A Series
+leaf_policy_groups_a:
+  - vp000_a01_apg
+  - vp000_a02_apg
+  - vp000_a03_apg
+  - vp000_a04_apg
+
+# Leaf Access Port Policy Groups - B Series
+leaf_policy_groups_b:
+  - vp000_b01_apg
+  - vp000_b02_apg
+  - vp000_b03_apg
+  - vp000_b04_apg
+
+# Interface Selectors for L1101
+l1101_interface_selectors:
+  - { name: Eth1_2, port: 2, policy_group: riv000_storage_apg }
+  - { name: Eth1_33, port: 33, policy_group: vp000_a01_apg }
+  - { name: Eth1_34, port: 34, policy_group: vp000_a02_apg }
+  - { name: Eth1_35, port: 35, policy_group: vp000_a03_apg }
+  - { name: Eth1_36, port: 36, policy_group: vp000_a04_apg }
+
+# Interface Selectors for L1102
+l1102_interface_selectors:
+  - { name: Eth1_2, port: 2, policy_group: riv000_storage_apg }
+  - { name: Eth1_33, port: 33, policy_group: vp000_b01_apg }
+  - { name: Eth1_34, port: 34, policy_group: vp000_b02_apg }
+  - { name: Eth1_35, port: 35, policy_group: vp000_b03_apg }
+  - { name: Eth1_36, port: 36, policy_group: vp000_b04_apg }
+
+# Interface Profiles
+interface_profiles:
+  - L1101_IntProf
+  - L1102_IntProf
+  - L1101_1102_IntProf
+
+# Individual Interface Profile Names
+interface_profile_l1101: L1101_IntProf
+interface_profile_l1102: L1102_IntProf
+interface_profile_l1101_1102: L1101_1102_IntProf
+
+# Switch Profiles
+switch_profiles:
+  - { name: L1101_SwProf, leaf_selector: L1101, node_from: 1101, node_to: 1101, interface_profile: L1101_IntProf }
+  - { name: L1102_SwProf, leaf_selector: L1102, node_from: 1102, node_to: 1102, interface_profile: L1102_IntProf }
+  - { name: L1101_1102_SwProf, leaf_selector: L1101_L1102, node_from: 1101, node_to: 1102, interface_profile: L1101_1102_IntProf }
+
+# Individual Switch Profile Names
+switch_profile_l1101: L1101_SwProf
+switch_profile_l1102: L1102_SwProf
+switch_profile_l1101_1102: L1101_1102_SwProf
+
+# Leaf Selector Names
+leaf_selector_l1101: L1101
+leaf_selector_l1102: L1102
+leaf_selector_l1101_1102: L1101_L1102
+
+# VPC Port Channel Security Policy
+protection_group_name: L1101_1102_VPC
+protection_group_id: 1
+vpc_domain_policy: default
+switch_1: 1101
+switch_2: 1102
+
+# Tenant Configuration
+tenant_name: pswt
+vrf_name: ops_vrf
+app_profile: pswt_app
+
+# Individual Bridge Domain Names
+bd_vlan20: ops_vlan20_bd
+bd_vlan24: ops_vlan24_bd
+bd_vlan25: ops_vlan25_bd
+bd_vlan26: ops_vlan26_bd
+bd_vlan27: ops_vlan27_bd
+bd_vlan28: ops_vlan28_bd
+bd_vlan29: ops_vlan29_bd
+bd_vlan30: ops_vlan30_bd
+bd_vlan31: ops_vlan31_bd
+bd_vlan70: ops_vlan70_bd
+bd_vlan80: ops_vlan80_bd
+bd_vlan91: ops_vlan91_bd
+bd_vlan101: ops_vlan101_bd
+bd_sons: ops_sons_bd
+
+# Individual EPG Names
+epg_vlan20: ops_vlan20_epg
+epg_vlan21: ops_vlan21_epg
+epg_vlan22: ops_vlan22_epg
+epg_vlan24: ops_vlan24_epg
+epg_vlan25: ops_vlan25_epg
+epg_vlan26: ops_vlan26_epg
+epg_vlan27: ops_vlan27_epg
+epg_vlan28: ops_vlan28_epg
+epg_vlan29: ops_vlan29_epg
+epg_vlan30: ops_vlan30_epg
+epg_vlan31: ops_vlan31_epg
+epg_vlan70: ops_vlan70_epg
+epg_vlan71: ops_vlan71_epg
+epg_vlan72: ops_vlan72_epg
+epg_vlan80: ops_vlan80_epg
+epg_vlan81: ops_vlan81_epg
+epg_vlan82: ops_vlan82_epg
+epg_vlan91: ops_vlan91_epg
+epg_vlan101: ops_vlan101_epg
+
+# Bridge Domains - No Routing
+bridge_domains_no_routing:
+  - ops_vlan20_bd
+  - ops_vlan24_bd
+  - ops_vlan25_bd
+  - ops_vlan26_bd
+  - ops_vlan27_bd
+  - ops_vlan28_bd
+  - ops_vlan29_bd
+  - ops_vlan30_bd
+  - ops_vlan70_bd
+  - ops_vlan80_bd
+  - ops_vlan91_bd
+  - ops_sons_bd
+
+# Bridge Domains - Default Routing
+bridge_domains_with_routing:
+  - ops_vlan31_bd
+  - ops_vlan101_bd
+
+# EPG Definitions
+epgs_standard:
+  - { epg: ops_vlan22_epg, bd: ops_vlan20_bd }
+  - { epg: ops_vlan24_epg, bd: ops_vlan24_bd }
+  - { epg: ops_vlan25_epg, bd: ops_vlan25_bd }
+  - { epg: ops_vlan26_epg, bd: ops_vlan26_bd }
+  - { epg: ops_vlan27_epg, bd: ops_vlan27_bd }
+  - { epg: ops_vlan28_epg, bd: ops_vlan28_bd }
+  - { epg: ops_vlan29_epg, bd: ops_vlan29_bd }
+  - { epg: ops_vlan30_epg, bd: ops_vlan30_bd }
+  - { epg: ops_vlan31_epg, bd: ops_vlan31_bd }
+  - { epg: ops_vlan70_epg, bd: ops_vlan70_bd }
+  - { epg: ops_vlan72_epg, bd: ops_vlan70_bd }
+  - { epg: ops_vlan80_epg, bd: ops_vlan80_bd }
+  - { epg: ops_vlan82_epg, bd: ops_vlan80_bd }
+  - { epg: ops_vlan91_epg, bd: ops_vlan91_bd }
+  - { epg: ops_vlan101_epg, bd: ops_vlan101_bd }
+
+# EPGs with Intra-EPG Isolation
+epgs_isolated:
+  - { epg: ops_vlan21_epg, bd: ops_vlan20_bd }
+  - { epg: ops_vlan71_epg, bd: ops_vlan70_bd }
+  - { epg: ops_vlan81_epg, bd: ops_vlan80_bd }
+
+# EPG List Definitions for Loops
+epgs_vlan_25_31:
+  - { epg: ops_vlan25_epg, bd: ops_vlan25_bd }
+  - { epg: ops_vlan26_epg, bd: ops_vlan26_bd }
+  - { epg: ops_vlan27_epg, bd: ops_vlan27_bd }
+  - { epg: ops_vlan28_epg, bd: ops_vlan28_bd }
+  - { epg: ops_vlan29_epg, bd: ops_vlan29_bd }
+  - { epg: ops_vlan30_epg, bd: ops_vlan30_bd }
+  - { epg: ops_vlan31_epg, bd: ops_vlan31_bd }
+
+epgs_vlan_70_series:
+  - { epg: ops_vlan70_epg, bd: ops_vlan70_bd }
+  - { epg: ops_vlan72_epg, bd: ops_vlan70_bd }
+  - { epg: ops_vlan80_epg, bd: ops_vlan80_bd }
+  - { epg: ops_vlan82_epg, bd: ops_vlan82_bd }
+  - { epg: ops_vlan91_epg, bd: ops_vlan91_bd }
+
+# EPGs requiring Physical Domain Binding
+# Individual EPGs
+individual_epgs:
+  - ops_vlan21_epg
+  - ops_vlan22_epg
+  - ops_vlan91_epg
+  - ops_vlan101_epg
+
+# EPG Ranges for Domain Binding - flattened list
+# Note: Range 1400-2999 EPGs are created separately using vlan_range_start/end
+# All ranges below need domain binding after EPGs are created
+epg_vlan_ids: >-
+  {{
+    (range(24, 32) | list) +
+    (range(70, 73) | list) +
+    (range(80, 83) | list) +
+    (range(1400, 3000) | list)
+  }}
+
+# Subnet Configurations
+subnets:
+  - { epg: ops_vlan31_epg, gateway: 192.168.12.1, mask: 22 }
+  - { epg: ops_vlan101_epg, gateway: 10.1.0.1, mask: 24 }
+
+# VPC Static Port Bindings
+vpc_static_bindings:
+  - { epg: ops_vlan22_epg, vlan: 22 }
+  - { epg: ops_vlan25_epg, vlan: 25 }
+  - { epg: ops_vlan26_epg, vlan: 26 }
+  - { epg: ops_vlan27_epg, vlan: 27 }
+  - { epg: ops_vlan28_epg, vlan: 28 }
+  - { epg: ops_vlan29_epg, vlan: 29 }
+  - { epg: ops_vlan30_epg, vlan: 30 }
+  - { epg: ops_vlan31_epg, vlan: 31 }
+  - { epg: ops_vlan70_epg, vlan: 70 }
+  - { epg: ops_vlan72_epg, vlan: 72 }
+  - { epg: ops_vlan80_epg, vlan: 80 }
+  - { epg: ops_vlan82_epg, vlan: 82 }
+  - { epg: ops_vlan91_epg, vlan: 91 }
+  - { epg: ops_vlan101_epg, vlan: 101 }
+
+# Individual Port Bindings for VLAN 24
+vlan24_ports:
+  - 2
+  - 33
+  - 34
+  - 35
+  - 36
+
+# Private VLAN Bindings
+private_vlan_bindings:
+  - { epg: ops_vlan21_epg, primary_vlan: 20, secondary_vlan: 21 }
+  - { epg: ops_vlan71_epg, primary_vlan: 70, secondary_vlan: 71 }
+  - { epg: ops_vlan81_epg, primary_vlan: 80, secondary_vlan: 81 }
+
+# VLAN Range for SONS EPGs
+vlan_range_start: 1400
+vlan_range_end: 2999
+sons_bridge_domain: ops_sons_bd
+
+# Leaf and Pod Configuration
+pod_id: 1
+leaf_pair: 1101-1102
+leaf_1101: 1101
+leaf_1102: 1102
+
+# Interface Types
+interface_type_vpc: vpc
+interface_type_switch_port: switch_port
+
+# VPC Interface Names (all data interfaces)
+vpc_interfaces:
+  - riv000_data_apg
+  - riv001_data_apg
+  - riv002_data_apg
+  - riv003_data_apg
+  - riv004_data_apg
+  - riv005_data_apg
+  - riv006_data_apg
+  - riv007_data_apg
+
+# Legacy single VPC interface (kept for backward compatibility)
+vpc_interface: riv000_data_apg
+
+# Static Binding Defaults
+deploy_immediacy: immediate
+binding_mode: regular
