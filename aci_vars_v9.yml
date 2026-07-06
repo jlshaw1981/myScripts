@@ -1,0 +1,754 @@
+---
+# ACI Configuration Variables
+
+# Authentication
+aci_username: ansible_user
+
+# Retry and Throttle Settings
+retry_count: 3
+retry_delay: 2
+throttle_vlan_pool: 1
+throttle_large_loops: 5
+
+# Pause Durations (seconds)
+pause_after_ntp: 3
+pause_after_policies: 3
+pause_after_vlan_pool: 3
+pause_after_domain: 3
+pause_after_policy_groups: 3
+pause_after_interface_selectors: 3
+pause_after_switch_profiles: 5
+pause_after_bridge_domains: 3
+pause_after_epgs: 3
+pause_before_static_bindings: 3
+
+# NTP Configuration
+ntp_policy_name: ntp_pol
+ntp_admin_state: enabled
+ntp_server_state: disabled
+ntp_auth_state: disabled
+ntp_server_ip: 1.1.10.15
+ntp_mgmt_epg: default
+pod_policy_group_name: pod1_pg
+
+# Interface Policies
+cdp_policy_disabled: cdp_disabled
+cdp_policy_enabled: cdp-enabled
+lldp_policy_enabled: lldp-enabled
+lldp_policy_disabled: lldp-disabled
+stp_policy: bpdu_filter_enabled
+storm_control_policy: bum10_drop
+link_level_policy: 25G-auto
+port_channel_mode_off: mode-off
+port_channel_lacp_active: lacp_active
+# Port Channel Policy (only for VPC)
+port_channel_static_on: static-on
+
+
+# Storm Control Configuration
+storm_control_action: drop
+storm_control_rate_type: percentage
+storm_control_rate: 10
+storm_control_burst_rate: 10
+
+# MCP Configuration
+mcp_policy_name: mcp_policy
+mcp_admin_state: true
+mode: non_strict
+
+# Link Level Configuration
+link_speed: 25G
+auto_negotiation: yes
+
+# Role: leaf or spine (Manage Fabric Node Members)
+# fabric_nodes:
+# Leafs
+  # - { pod_id: 1, node_id: 1101, serial: "FOC1234L01A", name: "L1101", role: "leaf" }
+  # - { pod_id: 1, node_id: 1102, serial: "FOC1234L02A", name: "L1102", role: "leaf" }
+  #- { pod_id: 1, node_id: 1103, serial: "FOC1234L03A", name: "L1103", role: "leaf" }
+  #- { pod_id: 1, node_id: 1104, serial: "FOC1234L04A", name: "L1104", role: "leaf" }
+  #- { pod_id: 1, node_id: 1105, serial: "FOC1234L05A", name: "L1105", role: "leaf" }
+  #- { pod_id: 1, node_id: 1106, serial: "FOC1234L06A", name: "L1106", role: "leaf" }
+  #- { pod_id: 1, node_id: 1107, serial: "FOC1234L07A", name: "L1107", role: "leaf" }
+  #- { pod_id: 1, node_id: 1108, serial: "FOC1234L08A", name: "L1108", role: "leaf" }
+  #- { pod_id: 1, node_id: 1109, serial: "FOC1234L09A", name: "L1109", role: "leaf" }
+  #- { pod_id: 1, node_id: 1110, serial: "FOC1234L10A", name: "L1110", role: "leaf" }
+
+# Spines
+  # - { pod_id: 1, node_id: 1201, serial: "FOC1234S01A", name: "S1201", role: "spine" }
+  # - { pod_id: 1, node_id: 1202, serial: "FOC1234S02A", name: "S1202", role: "spine" }
+  #- { pod_id: 1, node_id: 1203, serial: "FOC1234S03A", name: "S1203", role: "spine" }
+  #- { pod_id: 1, node_id: 1204, serial: "FOC1234S04A", name: "S1204", role: "spine" }
+
+# VLAN Pool
+vlan_pool_name: twsp_pool
+vlan_pool_allocation: static
+
+# VLAN Ranges
+vlan_ranges:
+  - { start: 20, end: 22 }
+  - { start: 24, end: 31 }
+  - { start: 40, end: 42 }
+  - { start: 45, end: 51 }
+  - { start: 60, end: 60 }
+  - { start: 65, end: 71 }
+  - { start: 73, end: 74 }
+  - { start: 80, end: 82 }
+  - { start: 91, end: 93 }
+  - { start: 94, end: 94 }
+  - { start: 101, end: 101 }
+  - { start: 421, end: 421 }
+  - { start: 801, end: 802 }
+  - { start: 1400, end: 3827 }
+
+  # - { start: 20, end: 22 }
+  # - { start: 24, end: 24 }
+  # - { start: 25, end: 31 }
+  # - { start: 40, end: 43 }
+  # - { start: 45, end: 59 }
+  # - { start: 60, end: 63 }
+  # - { start: 65, end: 69 }
+  # - { start: 70, end: 73 }
+  # - { start: 80, end: 82 }
+  # - { start: 91, end: 91 }
+  # - { start: 92, end: 94 }
+  # - { start: 100, end: 101 }
+  # - { start: 421, end: 421 }
+  # - { start: 801, end: 802 }
+  # - { start: 1400, end: 2999 }
+  # - { start: 3034, end: 3047 }
+  # - { start: 3052, end: 3505 }
+  # - { start: 3510, end: 3817 }
+  # - { start: 3820, end: 3827 }
+
+
+# Physical Domain and AAEP
+physical_domain: twsp_phydom
+aaep_name: twsp_aaep
+domain_type: phys
+
+# Lag Type
+type_1: node
+type_2: leaf
+
+# Interface Policy Groups
+vpc_policy_group: 
+  - vir000_data_apg
+  - vir001_data_apg
+  - vir002_data_apg
+  - vir003_data_apg
+  - vir004_data_apg
+  - vir005_data_apg
+  - vir006_data_apg
+  - vir007_data_apg
+  - vir010_data_apg
+  - vir011_data_apg
+  - vir012_data_apg
+  - vir013_data_apg
+  - vir020_data_apg
+  - vir021_data_apg
+  - vir022_data_apg
+  - vir023_data_apg
+  - edge_rtr001_apg
+  - edge_rtr002_apg
+  - edp001_data_apg
+  - edp002_data_apg
+  - vir130_data_apg
+  - vir131_data_apg
+  - vir132_data_apg
+  - vir133_data_apg
+  - llm_001_apg
+  - llm_002_apg
+  - switch1_apg
+  - switch2_apg
+
+storage_policy_group: 
+  - vir000_storage_apg
+  - vir001_storage_apg
+  - vir002_storage_apg
+  - vir003_storage_apg
+  - vir004_storage_apg
+  - vir005_storage_apg
+  - vir006_storage_apg
+  - vir007_storage_apg
+  - vir010_storage_apg
+  - vir011_storage_apg
+  - vir012_storage_apg
+  - vir013_storage_apg
+  - vir020_storage_apg
+  - vir021_storage_apg
+  - vir022_storage_apg
+  - vir023_storage_apg
+
+# Leaf Access Port Policy Groups - A Series
+leaf_policy_groups_a:
+  - pv000_a01_apg
+  - pv000_a02_apg
+  - pv000_a03_apg
+  - pv000_a04_apg
+  - pv001_a01_apg
+  - pv001_a02_apg
+  - pv001_a03_apg
+  - pv001_a04_apg
+  - pv010_a01_apg
+  - pv010_a02_apg
+  - pv010_a03_apg
+  - pv010_a04_apg
+  - pv020_a01_apg
+  - pv020_a02_apg
+  - pv020_a03_apg
+  - pv020_a04_apg
+
+# Leaf Access Port Policy Groups - B Series
+leaf_policy_groups_b:
+  - pv000_b01_apg
+  - pv000_b02_apg
+  - pv000_b03_apg
+  - pv000_b04_apg
+  - pv001_b01_apg
+  - pv001_b02_apg
+  - pv001_b03_apg
+  - pv001_b04_apg
+  - pv010_b01_apg
+  - pv010_b02_apg
+  - pv010_b03_apg
+  - pv010_b04_apg
+  - pv020_b01_apg
+  - pv020_b02_apg
+  - pv020_b03_apg
+  - pv020_b04_apg
+
+
+# VPC Interface Selectors for L1101_L1102 (all *_data_apg interfaces)
+L1101_1102_vpc_interface_selectors:
+  - { name: Eth1_1, port: 1, policy_group: vir000_data_apg }
+  - { name: Eth1_3, port: 3, policy_group: vir001_data_apg }
+  - { name: Eth1_5, port: 5, policy_group: vir002_data_apg }
+  - { name: Eth1_7, port: 7, policy_group: vir003_data_apg }
+  - { name: Eth1_9, port: 9, policy_group: vir004_data_apg }
+  - { name: Eth1_11, port: 11, policy_group: vir005_data_apg }
+  - { name: Eth1_13, port: 13, policy_group: vir006_data_apg }
+  - { name: Eth1_15, port: 15, policy_group: vir007_data_apg }
+  - { name: Eth1_17, port: 17, policy_group: vir010_data_apg }
+  - { name: Eth1_19, port: 19, policy_group: vir011_data_apg }
+  - { name: Eth1_21, port: 21, policy_group: vir012_data_apg }
+  - { name: Eth1_23, port: 23, policy_group: vir013_data_apg }
+  - { name: Eth1_25, port: 25, policy_group: vir020_data_apg }
+  - { name: Eth1_27, port: 27, policy_group: vir021_data_apg }
+  - { name: Eth1_29, port: 29, policy_group: vir022_data_apg }
+  - { name: Eth1_31, port: 31, policy_group: vir023_data_apg }
+
+# Interface Selectors for L1101 (storage and leaf-specific access ports only - no VPC data interfaces)
+l1101_interface_selectors:
+  - { name: Eth1_2, port: 2, policy_group: vir000_storage_apg }
+  - { name: Eth1_4, port: 4, policy_group: vir001_storage_apg }
+  - { name: Eth1_6, port: 6, policy_group: vir002_storage_apg }
+  - { name: Eth1_8, port: 8, policy_group: vir003_storage_apg }
+  - { name: Eth1_10, port: 10, policy_group: vir004_storage_apg }
+  - { name: Eth1_12, port: 12, policy_group: vir005_storage_apg }
+  - { name: Eth1_14, port: 14, policy_group: vir006_storage_apg }
+  - { name: Eth1_16, port: 16, policy_group: vir007_storage_apg }
+  - { name: Eth1_18, port: 18, policy_group: vir010_storage_apg }
+  - { name: Eth1_20, port: 20, policy_group: vir011_storage_apg }
+  - { name: Eth1_22, port: 22, policy_group: vir012_storage_apg }
+  - { name: Eth1_24, port: 24, policy_group: vir013_storage_apg }
+  - { name: Eth1_26, port: 26, policy_group: vir020_storage_apg }
+  - { name: Eth1_28, port: 28, policy_group: vir021_storage_apg }
+  - { name: Eth1_30, port: 30, policy_group: vir022_storage_apg }
+  - { name: Eth1_32, port: 32, policy_group: vir023_storage_apg }
+  - { name: Eth1_33, port: 33, policy_group: pv000_a01_apg }
+  - { name: Eth1_34, port: 34, policy_group: pv000_b02_apg }
+  - { name: Eth1_35, port: 35, policy_group: pv000_a03_apg }
+  - { name: Eth1_36, port: 36, policy_group: pv000_b04_apg }
+  - { name: Eth1_37, port: 37, policy_group: pv001_a01_apg }
+  - { name: Eth1_38, port: 38, policy_group: pv001_b02_apg }
+  - { name: Eth1_39, port: 39, policy_group: pv001_a03_apg }
+  - { name: Eth1_40, port: 40, policy_group: pv001_b04_apg }
+
+# Interface Selectors for L1102 (storage and leaf-specific access ports only - no VPC data interfaces)
+l1102_interface_selectors:
+  - { name: Eth1_2, port: 2, policy_group: vir000_storage_apg }
+  - { name: Eth1_4, port: 4, policy_group: vir001_storage_apg }
+  - { name: Eth1_6, port: 6, policy_group: vir002_storage_apg }
+  - { name: Eth1_8, port: 8, policy_group: vir003_storage_apg }
+  - { name: Eth1_10, port: 10, policy_group: vir004_storage_apg }
+  - { name: Eth1_12, port: 12, policy_group: vir005_storage_apg }
+  - { name: Eth1_14, port: 14, policy_group: vir006_storage_apg }
+  - { name: Eth1_16, port: 16, policy_group: vir007_storage_apg }
+  - { name: Eth1_18, port: 18, policy_group: vir010_storage_apg }
+  - { name: Eth1_20, port: 20, policy_group: vir011_storage_apg }
+  - { name: Eth1_22, port: 22, policy_group: vir012_storage_apg }
+  - { name: Eth1_24, port: 24, policy_group: vir013_storage_apg }
+  - { name: Eth1_26, port: 26, policy_group: vir020_storage_apg }
+  - { name: Eth1_28, port: 28, policy_group: vir021_storage_apg }
+  - { name: Eth1_30, port: 30, policy_group: vir022_storage_apg }
+  - { name: Eth1_32, port: 32, policy_group: vir023_storage_apg }
+  - { name: Eth1_33, port: 33, policy_group: pv000_b01_apg }
+  - { name: Eth1_34, port: 34, policy_group: pv000_a02_apg }
+  - { name: Eth1_35, port: 35, policy_group: pv000_b03_apg }
+  - { name: Eth1_36, port: 36, policy_group: pv000_a04_apg }
+  - { name: Eth1_37, port: 37, policy_group: pv001_b01_apg }
+  - { name: Eth1_38, port: 38, policy_group: pv001_a02_apg }
+  - { name: Eth1_39, port: 39, policy_group: pv001_b03_apg }
+  - { name: Eth1_40, port: 40, policy_group: pv001_a04_apg }
+
+# VPC Interface Selectors for L1103_L1104 (all *_data_apg interfaces)
+L1103_L1104_vpc_interface_selectors:
+  - { name: Eth1_9, port: 9, policy_group: edp001_data_apg }
+  - { name: Eth1_10, port: 10, policy_group: edp001_data_apg }
+  - { name: Eth1_11, port: 11, policy_group: edp002_data_apg }
+  - { name: Eth1_12, port: 12, policy_group: edp002_data_apg }
+  - { name: Eth1_13, port: 13, policy_group: vir130_data_apg }
+  - { name: Eth1_14, port: 14, policy_group: vir130_data_apg }
+  - { name: Eth1_15, port: 15, policy_group: vir131_data_apg }
+  - { name: Eth1_16, port: 16, policy_group: vir131_data_apg }
+  - { name: Eth1_17, port: 17, policy_group: vir132_data_apg }
+  - { name: Eth1_18, port: 18, policy_group: vir132_data_apg }
+  - { name: Eth1_19, port: 19, policy_group: vir133_data_apg }
+  - { name: Eth1_20, port: 20, policy_group: vir133_data_apg }
+  - { name: Eth1_21, port: 21, policy_group: llm_001_apg }
+  - { name: Eth1_22, port: 22, policy_group: llm_002_apg }
+  - { name: Eth1_23, port: 23, policy_group: switch1_apg }
+  - { name: Eth1_24, port: 24, policy_group: switch2_apg }
+
+
+# Interface Selectors for L1103 (storage and leaf-specific access ports only - no VPC data interfaces)
+l1103_interface_selectors:
+  - { name: Eth1_1, port: 1, policy_group: pv010_a01_apg }
+  - { name: Eth1_2, port: 2, policy_group: pv010_b02_apg }
+  - { name: Eth1_3, port: 3, policy_group: pv010_a03_apg }
+  - { name: Eth1_4, port: 4, policy_group: pv010_b04_apg }
+  - { name: Eth1_5, port: 5, policy_group: pv020_a01_apg }
+  - { name: Eth1_6, port: 6, policy_group: pv020_b02_apg }
+  - { name: Eth1_7, port: 7, policy_group: pv020_a03_apg }
+  - { name: Eth1_8, port: 8, policy_group: pv020_b04_apg }
+
+# Interface Selectors for L1104 (storage and leaf-specific access ports only - no VPC data interfaces)
+l1104_interface_selectors:
+  - { name: Eth1_1, port: 1, policy_group: pv010_b01_apg }
+  - { name: Eth1_2, port: 2, policy_group: pv010_a02_apg }
+  - { name: Eth1_3, port: 3, policy_group: pv010_b03_apg }
+  - { name: Eth1_4, port: 4, policy_group: pv010_a04_apg }
+  - { name: Eth1_5, port: 5, policy_group: pv020_b01_apg }
+  - { name: Eth1_6, port: 6, policy_group: pv020_a02_apg }
+  - { name: Eth1_7, port: 7, policy_group: pv020_b03_apg }
+  - { name: Eth1_8, port: 8, policy_group: pv020_a04_apg }
+
+# VPC Interface Selectors for L1109_L1110 (all *_data_apg interfaces)
+L1109_L1110_vpc_interface_selectors:
+  - { name: Eth1_1, port: 1, policy_group: edge_rtr001_apg }
+  - { name: Eth1_2, port: 2, policy_group: edge_rtr002_apg }
+  - { name: Eth1_3, port: 3, policy_group: pa-fw1_apg }
+  - { name: Eth1_4, port: 4, policy_group: pa-fw2_apg }
+  - { name: Eth1_5, port: 5, policy_group: B200-001_apg }
+  - { name: Eth1_6, port: 6, policy_group: B200-002_apg }
+  
+# Interface Profiles
+interface_profiles:
+  - L1101_IntProf
+  - L1102_IntProf
+  - L1101_L1102_IntProf
+  - L1103_IntProf
+  - L1104_IntProf
+  - L1103_L1104_IntProf
+  - L1109_L1110_IntProf
+
+# Individual Interface Profile Names
+interface_profile_l1101: L1101_IntProf
+interface_profile_l1102: L1102_IntProf
+interface_profile_l1101_l1102: L1101_L1102_IntProf
+interface_profile_l1103: L1103_IntProf
+interface_profile_l1104: L1104_IntProf
+interface_profile_l1103_l1104: L1103_L1104_IntProf
+interface_profile_l1109_l1110: L1109_L1110_IntProf
+
+# Fabric Access Policy Leaf Interface Profile
+fabric_access_policy: Eth1_1
+
+# Leaf Port Block
+port_block: Eth1_1_block 
+
+# Switch Profiles
+switch_profiles:
+  - { name: L1101_SwProf, leaf_selector: L1101, node_from: 1101, node_to: 1101, interface_profile: L1101_IntProf }
+  - { name: L1102_SwProf, leaf_selector: L1102, node_from: 1102, node_to: 1102, interface_profile: L1102_IntProf }
+  - { name: L1101_1102_SwProf, leaf_selector: L1101_L1102, node_from: 1101, node_to: 1102, interface_profile: L1101_L1102_IntProf }
+  - { name: L1103_SwProf, leaf_selector: L1103, node_from: 1103, node_to: 1103, interface_profile: L1103_IntProf }
+  - { name: L1104_SwProf, leaf_selector: L1104, node_from: 1104, node_to: 1104, interface_profile: L1104_IntProf }
+  - { name: L1103_1104_SwProf, leaf_selector: L1103_L1104, node_from: 1103, node_to: 1104, interface_profile: L1103_L1104_IntProf }
+  - { name: L1109_1110_SwProf, leaf_selector: L1109_L1110, node_from: 1109, node_to: 1110, interface_profile: L1109_L1110_IntProf }
+
+# Individual Switch Profile Names
+switch_profile_l1101: L1101_SwProf
+switch_profile_l1102: L1102_SwProf
+switch_profile_l1101_l1102: L1101_L1102_SwProf
+switch_profile_l1103: L1103_SwProf
+switch_profile_l1104: L1104_SwProf
+switch_profile_l1103_l1104: L1103_L1104_SwProf
+switch_profile_l1109_l1110: L1109_L1110_SwProf
+
+# Leaf Selector Names
+leaf_selector_l1101: L1101
+leaf_selector_l1102: L1102
+leaf_selector_l1101_l1102: L1101_L1102
+leaf_selector_l1103: L1103
+leaf_selector_l1104: L1104
+leaf_selector_l1103_l1104: L1103_L1104
+leaf_selector_l1109_l1110: L1109_L1110
+
+# VPC Port Channel Security Policy/Protection Groups
+protection_group_name_L1101_L1102: L1101_L1102_vpc
+protection_group_id_L1101_L1102: 1
+vpc_domain_policy_L1101_L1102: default
+switch_1_id: 1101
+switch_2_id: 1102
+
+protection_group_name_L1103_L1104: L1103_L1104_VPC
+protection_group_id_L1103_L1104: 2
+vpc_domain_policy_L1103_L1104: default
+switch_3_id: 1103
+switch_4_id: 1104
+
+#protection_group_name_L1105_L1106: L1105_L1106_VPC
+#protection_group_id_L1105_L1106: 2
+#vpc_domain_policy_L1103_L1104: default
+#switch_5_id: 1105
+#switch_6_id: 1106
+
+#protection_group_name_L1107_L1108: L1107_L1108_VPC
+#protection_group_id_L1107_L1108: 2
+#vpc_domain_policy_L1107_L1108: default
+#switch_7_id: 1107
+#switch_8_id: 1108
+
+protection_group_name_L1109_L1110: L1109_L1110_VPC
+protection_group_id_L1109_L1110: 5
+vpc_domain_policy_L1109_L1110: default
+switch_9_id: 1109
+switch_10_id: 1110
+
+# Tenant Configuration
+tenant_name: twsp
+ops_vrf_name: ops_vrf
+admin_vrf_name: admin_vrf
+app_profile: twsp_app
+
+# ESG Configuration
+esg_vlan20: ops_vlan20_esg
+esg_vlan20_epgs:
+  - ops_vlan20_epg
+  - ops_vlan21_epg
+
+# Individual Bridge Domain Names
+bd_vlan20: ops_vlan20_bd
+bd_vlan21: ops_vlan21_bd
+bd_vlan22: ops_vlan22_bd
+bd_vlan24: ops_vlan24_bd
+bd_vlan25: ops_vlan25_bd
+bd_vlan26: ops_vlan26_bd
+bd_vlan27: ops_vlan27_bd
+bd_vlan28: ops_vlan28_bd
+bd_vlan29: ops_vlan29_bd
+bd_vlan30: ops_vlan30_bd
+bd_vlan31: ops_vlan31_bd
+bd_vlan40: ops_vlan40_bd
+bd_vlan41: ops_vlan41_bd
+bd_vlan42: ops_vlan42_bd
+bd_vlan45: ops_vlan45_bd
+bd_vlan46: ops_vlan46_bd
+bd_vlan47: ops_vlan47_bd
+bd_vlan48: ops_vlan48_bd
+bd_vlan49: ops_vlan49_bd
+bd_vlan50: ops_vlan50_bd
+bd_vlan51: ops_vlan51_bd
+bd_vlan80: ops_vlan80_bd
+bd_vlan81: ops_vlan81_bd
+bd_vlan82: ops_vlan82_bd
+bd_vlan91: ops_vlan91_bd
+bd_vlan92: ops_vlan92_bd
+bd_vlan93: ops_vlan93_bd
+bd_vlan101: ops_vlan101_bd
+#bd_sons: ops_sons_bd
+
+# Individual Ops EPG Names
+epg_vlan20: ops_vlan20_epg
+epg_vlan21: ops_vlan21_epg
+epg_vlan22: ops_vlan22_epg
+epg_vlan24: ops_vlan24_epg
+epg_vlan25: ops_vlan25_epg
+epg_vlan26: ops_vlan26_epg
+epg_vlan27: ops_vlan27_epg
+epg_vlan28: ops_vlan28_epg
+epg_vlan29: ops_vlan29_epg
+epg_vlan30: ops_vlan30_epg
+epg_vlan31: ops_vlan31_epg
+epg_vlan51: ops_vlan51_epg
+epg_vlan80: ops_vlan80_epg
+epg_vlan81: ops_vlan81_epg
+epg_vlan82: ops_vlan82_epg
+epg_vlan91: ops_vlan91_epg
+epg_vlan92: ops_vlan92_epg
+epg_vlan93: ops_vlan93_epg
+epg_vlan101: ops_vlan101_epg
+
+# Individual Admin EPG Names
+epg_vlan60: admin_vlan60_epg
+epg_vlan65: admin_vlan65_epg
+epg_vlan66: admin_vlan66_epg
+epg_vlan67: admin_vlan67_epg
+epg_vlan68: admin_vlan68_epg
+epg_vlan69: admin_vlan69_epg
+epg_vlan70: admin_vlan70_epg
+epg_vlan71: admin_vlan71_epg
+epg_vlan72: admin_vlan72_epg
+epg_vlan73: admin_vlan73_epg
+epg_vlan74: admin_vlan74_epg
+epg_vlan91: admin_vlan91_epg
+epg_vlan421: admin_vlan421_epg
+epg_vlan801: admin_vlan801_epg
+epg_vlan802: admin_vlan802_epg
+
+# Bridge Domains - No Routing
+ops_static_bds:
+  - ops_vlan20_bd
+  - ops_vlan21_bd
+  - ops_vlan22_bd
+  - ops_vlan24_bd
+  - ops_vlan25_bd
+  - ops_vlan26_bd
+  - ops_vlan27_bd
+  - ops_vlan28_bd
+  - ops_vlan29_bd
+  - ops_vlan30_bd
+  - ops_vlan31_bd
+  - ops_vlan40_bd
+  - ops_vlan41_bd
+  - ops_vlan42_bd
+  - ops_vlan45_bd
+  - ops_vlan46_bd
+  - ops_vlan47_bd
+  - ops_vlan48_bd
+  - ops_vlan49_bd
+  - ops_vlan50_bd
+  - ops_vlan80_bd
+  - ops_vlan81_bd
+  - ops_vlan82_bd
+  - ops_vlan91_bd
+  - ops_vlan92_bd
+  - ops_vlan93_bd
+  - ops_vlan101_bd
+  - ops_sons_bd
+
+ops_dynamic_bds: "{{ query('sequence', 'start=1400 end=3827')
+                     | map('regex_replace', '^(.*)$', 'ops_vlan\\1_bd')
+                     | list }}"
+
+ops_bridge_domains_no_routing: "{{ ops_static_bds + ops_dynamic_bds }}"
+
+admin_bridge_domains_no_routing:
+  - admin_vlan65_bd
+  - admin_vlan66_bd
+  - admin_vlan67_bd
+  - admin_vlan68_bd
+  - admin_vlan69_bd
+  - admin_vlan70_bd
+  - admin_vlan71_bd
+  - admin_vlan73_bd
+  - admin_vlan74_bd
+  - admin_vlan94_bd
+  - admin_vlan421_bd
+  - admin_vlan801_bd
+  - admin_vlan802_bd
+
+# Bridge Domains - Default Routing
+ops_bridge_domains_with_routing:
+  - ops_vlan31_bd
+  - ops_vlan51_bd
+ 
+admin_bridge_domains_with_routing:
+  - admin_vlan60_bd
+
+# EPG Definitions
+epgs_standard:
+  - { epg: ops_vlan20_epg, bd: ops_vlan20_bd }
+  - { epg: ops_vlan21_epg, bd: ops_vlan21_bd }
+  - { epg: ops_vlan22_epg, bd: ops_vlan22_bd }
+  - { epg: ops_vlan24_epg, bd: ops_vlan24_bd }
+  - { epg: ops_vlan25_epg, bd: ops_vlan25_bd }
+  - { epg: ops_vlan26_epg, bd: ops_vlan26_bd }
+  - { epg: ops_vlan27_epg, bd: ops_vlan27_bd }
+  - { epg: ops_vlan28_epg, bd: ops_vlan28_bd }
+  - { epg: ops_vlan29_epg, bd: ops_vlan29_bd }
+  - { epg: ops_vlan30_epg, bd: ops_vlan30_bd }
+  - { epg: ops_vlan31_epg, bd: ops_vlan31_bd }
+  - { epg: ops_vlan40_epg, bd: ops_vlan40_bd }
+  - { epg: ops_vlan41_epg, bd: ops_vlan41_bd }
+  - { epg: ops_vlan42_epg, bd: ops_vlan42_bd }
+  - { epg: ops_vlan45_epg, bd: ops_vlan45_bd }
+  - { epg: ops_vlan46_epg, bd: ops_vlan46_bd }
+  - { epg: ops_vlan47_epg, bd: ops_vlan47_bd }
+  - { epg: ops_vlan48_epg, bd: ops_vlan48_bd }
+  - { epg: ops_vlan49_epg, bd: ops_vlan49_bd }
+  - { epg: ops_vlan50_epg, bd: ops_vlan50_bd }
+  - { epg: ops_vlan51_epg, bd: ops_vlan51_bd }
+  - { epg: ops_vlan80_epg, bd: ops_vlan80_bd }
+  - { epg: ops_vlan81_epg, bd: ops_vlan81_bd }
+  - { epg: ops_vlan82_epg, bd: ops_vlan80_bd }
+  - { epg: ops_vlan91_epg, bd: ops_vlan91_bd }
+  - { epg: ops_vlan92_epg, bd: ops_vlan92_bd }
+  - { epg: ops_vlan93_epg, bd: ops_vlan93_bd }
+  - { epg: ops_vlan101_epg, bd: ops_vlan101_bd }
+  - { epg: admin_vlan60_epg, bd: admin_vlan60_bd }
+  - { epg: admin_vlan65_epg, bd: admin_vlan65_bd }
+  - { epg: admin_vlan66_epg, bd: admin_vlan66_bd }
+  - { epg: admin_vlan67_epg, bd: admin_vlan67_bd }
+  - { epg: admin_vlan68_epg, bd: admin_vlan68_bd }
+  - { epg: admin_vlan69_epg, bd: admin_vlan69_bd }
+  - { epg: admin_vlan70_epg, bd: admin_vlan70_bd }
+  - { epg: admin_vlan71_epg, bd: admin_vlan71_bd }
+  - { epg: admin_vlan73_epg, bd: admin_vlan73_bd }
+  - { epg: admin_vlan74_epg, bd: admin_vlan74_bd }
+  - { epg: admin_vlan94_epg, bd: admin_vlan94_bd }
+  - { epg: admin_vlan421_epg, bd: admin_vlan421_bd }
+  - { epg: admin_vlan801_epg, bd: admin_vlan801_bd }
+  - { epg: admin_vlan802_epg, bd: admin_vlan802_bd }
+
+# EPGs with Intra-EPG Isolation
+epgs_isolated:
+  # - { epg: ops_vlan21_epg, bd: ops_vlan20_bd } <- removed since vlan21 is now part of an ESG
+  - { epg: ops_vlan81_epg, bd: ops_vlan80_bd }
+
+
+# Admin EPG Ranges for Physical Domain Binding
+
+admin_epg_vlan_ids: >-
+  {{
+    (range(60, 61) | list) +
+    (range(65, 71) | list) +
+    (range(73, 74) | list) +
+    (range(94, 95) | list) +
+    (range(421, 422) | list) +
+    (range(801, 803) | list)
+  }}
+
+# Ops EPG Ranges for Domain Binding - flattened list
+# Note: EPGs are created separately using vlan_range_start/end
+# Range() calls were using inclusive start, exclusive end — 
+# but several had the same start and end, which produced an empty list. Fixed now
+
+ops_epg_vlan_ids: >-
+  {{
+    (range(20, 22) | list) +
+    (range(24, 31) | list) +
+    (range(40, 42) | list) +
+    (range(45, 51) | list) +
+    (range(80, 82) | list) +
+    (range(91, 93) | list) +
+    (range(101, 102) | list) +
+    (range(1400, 3827) | list)
+  }}
+
+# Subnet Configurations
+subnets:
+  - { epg: ops_vlan31_epg, gateway: 192.168.12.1, mask: 22 }
+  - { epg: ops_vlan51_epg, gateway: 192.168.112.1, mask: 22 }
+  - { epg: admin_vlan60_epg, gateway: 192.168.254.1, mask: 24 }
+
+# VPC static binding for Ops and Admin vlan ranges
+ops_vlan_ranges:
+  - { start: 20, end: 22 }
+  - { start: 24, end: 31 }
+  - { start: 40, end: 42 }
+  - { start: 45, end: 51 }
+  - { start: 80, end: 82 }
+  - { start: 91, end: 93 }
+  - { start: 101, end: 101 }
+  - { start: 1400, end: 3827 }
+
+admin_vlan_ranges:
+  - { start: 60, end: 60 }
+  - { start: 65, end: 71 }
+  - { start: 73, end: 74 }
+  - { start: 94, end: 94 }
+  - { start: 421, end: 421 }
+  - { start: 801, end: 802 }
+  
+
+# Private VLAN Bindings
+private_vlan_bindings:
+  - { epg: ops_vlan21_epg, primary_vlan: 20, secondary_vlan: 21 }
+  - { epg: ops_vlan22_epg, primary_vlan: 20, secondary_vlan: 22 }
+  - { epg: ops_vlan41_epg, primary_vlan: 40, secondary_vlan: 41 }
+  - { epg: ops_vlan42_epg, primary_vlan: 40, secondary_vlan: 42 }
+  - { epg: admin_vlan66_epg, primary_vlan: 65, secondary_vlan: 66 }
+  - { epg: admin_vlan71_epg, primary_vlan: 70, secondary_vlan: 71 }
+  - { epg: admin_vlan74_epg, primary_vlan: 73, secondary_vlan: 74 }
+  #- { epg: admin_vlan81_epg, primary_vlan: 80, secondary_vlan: 81 }
+  
+# VLAN Range for SONS EPGs
+vlan_range_start: 1400
+vlan_range_end: 3827
+sons_bridge_domain: ops_sons_bd
+
+# Leaf and Pod Configuration
+pod_id: 1
+leaf_pair: 1101-1102
+# leaf_pair: 1103-1104
+# leaf_pair: 1105-1106
+# leaf_pair: 1107-1108
+# leaf_pair: 1109-1110
+leaf_1101: 1101
+leaf_1102: 1102
+# leaf_1103: 1103
+# leaf_1104: 1104
+# leaf_1105: 1105
+# leaf_1106: 1106
+# leaf_1107: 1107
+# leaf_1108: 1108
+# leaf_1109: 1109
+# leaf_1110: 1110
+
+# Interface Types
+interface_type_vpc: vpc
+interface_type_switch_port: switch_port
+
+# VPC Interface Names (all data interfaces)
+vpc_interfaces:
+  - vir000_data_apg
+  - vir001_data_apg
+  - vir002_data_apg
+  - vir003_data_apg
+  - vir004_data_apg
+  - vir005_data_apg
+  - vir006_data_apg
+  - vir007_data_apg
+  - vir010_data_apg
+  - vir011_data_apg
+  - vir012_data_apg
+  - vir013_data_apg
+  - vir020_data_apg
+  - vir021_data_apg
+  - vir022_data_apg
+  - vir023_data_apg
+  - vir130_data_apg
+  - vir131_data_apg
+  - vir132_data_apg
+  - vir133_data_apg
+  # - edp001_data_apg
+  # - edp002_data_apg
+  # - llm_001_apg
+  # - llm_002_apg
+  # - switch1_apg
+  # - switch2_apg
+  # - edge_rtr001_apg
+  # - edge_rtr002_apg
+  # - pa-fw1_apg
+  # - pa-fw2_apg
+  # - B200-001_apg
+  # - B200-002_apg
+  
+
+# Static Binding Defaults
+deploy_immediacy: immediate
+binding_mode_trunk: trunk
+binding_mode_access: access
