@@ -1,0 +1,229 @@
+---
+# =========================================================
+#          DYNAMIC ACI L3OUT - USER FILL-OUT FORM
+# =========================================================
+# HOW TO USE:
+#   1. Fill in the REQUIRED fields.
+#   2. Fill in any OPTIONAL fields you need.
+#   3. DELETE any optional line or section you don't need —
+#      the playbook automatically skips missing items.
+#
+# NOTE: tenant and vrf are FORCED to lowercase at runtime.
+# =========================================================
+
+# ---------------------------------------------------------
+# [REQUIRED] APIC connection
+# ---------------------------------------------------------
+apic_host: "your host ip"
+apic_username: "your_user"
+apic_password: "your_password"         # store in vault file
+validate_certs: false
+
+# ---------------------------------------------------------
+# [REQUIRED] Tenant / VRF   (forced lowercase at runtime)
+# ---------------------------------------------------------
+tenant: test
+vrf: test_vrf
+
+# [OPTIONAL] Tenant/VRF extras — delete lines you don't need
+# tenant_description: "Edge services tenant"
+# vrf_description: "Border VRF"
+# vrf_policy_control: enforced        # enforced | unenforced
+# vrf_policy_direction: ingress       # ingress | egress
+
+# ---------------------------------------------------------
+# [REQUIRED] L3Out
+#
+#   l3protocol — string or list. Options:
+#       bgp | ospf | eigrp | static | pim
+#       Examples:  l3protocol: bgp
+#                  l3protocol: [bgp, ospf]
+#
+#   route_control — export | [export, import]
+#   asn           — REQUIRED only when eigrp is used
+#   ospf          — REQUIRED only when ospf is used
+# ---------------------------------------------------------
+l3out:
+  name: example_L3Out
+  domain: example-l3dom              # L3 domain (l3extDomP)
+  l3protocol: bgp
+  # description: "Example L3Out"
+  # route_control: export
+  # asn: 100                         # eigrp only
+  # ospf:                            # ospf only
+  #   area_id: 0.0.0.1               # area in dotted or decimal form
+  #   area_type: regular             # regular | nssa | stub
+  #   area_cost: 1
+  #   area_ctrl: redistribute,summary
+
+# ---------------------------------------------------------
+# [REQUIRED] Node profiles — at least one, with one node
+#
+# PER NODE:
+#   [REQUIRED] node_id, pod_id, router_id
+#   [OPTIONAL] loopback_address
+#   [OPTIONAL] static_routes  (list; see example)
+#   [OPTIONAL] bgp_peers      (NODE-LEVEL peers, e.g. peering
+#                              to a loopback across links)
+#
+# PER INTERFACE PROFILE:
+#   [REQUIRED] name
+#   [OPTIONAL] description
+#   [OPTIONAL] ospf_policy / ospf_auth_* (ospf only)
+#
+# PER INTERFACE:
+#   [REQUIRED] node_id, pod_id, path, interface_type
+#     interface_type options:
+#       l3-port        routed port    (NO encap)
+#       sub-interface  dot1q sub-int  (encap required)
+#       ext-svi        SVI            (encap required)
+#   [OPTIONAL] encap          vlan-X (sub-interface / ext-svi)
+#   [OPTIONAL] encap_scope    local | vrf
+#   [OPTIONAL] address        omit when using vpc_members
+#   [OPTIONAL] mtu            omit to inherit fabric MTU
+#   [OPTIONAL] mode           regular (SVI trunk mode)
+#   [OPTIONAL] auto_state     enabled | disabled (SVI only)
+#   [OPTIONAL] description
+#   [OPTIONAL] bgp_peers      INTERFACE-LEVEL peers (see below)
+#   [OPTIONAL] vpc_members    side A/B addresses for vPC SVIs
+#
+# PER BGP PEER (node-level or interface-level):
+#   [REQUIRED] peer_ip, remote_asn
+#   [OPTIONAL] local_asn              local AS number
+#   [OPTIONAL] local_asn_config       none ("no options") |
+#                                     no-prepend | replace-as | dual-as
+#   [OPTIONAL] admin_state            enabled | disabled  (default enabled)
+#   [OPTIONAL] bgp_controls           list: send-com, send-ext-com,
+#                                     allow-self-as, as-override,
+#                                     dis-peer-as-check, nh-self
+#   [OPTIONAL] peer_controls          list: bfd, dis-conn-check
+#   [OPTIONAL] address_type_controls  list: af-ucast, af-mcast
+#   [OPTIONAL] private_asn_controls   list: remove-exclusive,
+#                                     remove-all, replace-as
+#   [OPTIONAL] ttl                    eBGP multihop TTL (e.g. 4)
+#   [OPTIONAL] weight                 BGP weight
+#   [OPTIONAL] allow_self_as_count    used with allow-self-as
+#   [OPTIONAL] description
+# ---------------------------------------------------------
+node_profiles:
+  - name: L1110
+    nodes:
+      - node_id: 1110
+        pod_id: 1
+        router_id: 4.1.32.10
+        # loopback_address: 5.1.255.10
+        #
+        # --- node-level (loopback) BGP peers ---
+        # bgp_peers:
+        #   - peer_ip: 5.1.255.99
+        #     remote_asn: 65001
+        #     local_asn: 15003
+        #     local_asn_config: none
+        #     ttl: 4                       # multihop for loopback peering
+        #     peer_controls: [bfd]
+        #
+        # --- static routes (static only) ---
+        # static_routes:
+        #   - prefix: 10.0.0.0/8
+        #     preference: 1                # admin distance
+        #     next_hops:
+        #       - address: 1.1.0.1
+        #       - address: 1.1.0.5
+
+    interface_profiles:
+      - name: example_intprof
+        # description: "Uplinks to firewall"
+        # ospf_policy: default             # OSPF interface policy (ospf only)
+        # ospf_auth_type: md5              # none | simple | md5
+        # ospf_auth_key: "secret"          # store in vault
+        # ospf_auth_key_id: 1
+        interfaces:
+
+          # ===== EXAMPLE 1: sub-interface with interface-level BGP peer =====
+          - node_id: 1110
+            pod_id: 1
+            path: eth1/2
+            interface_type: sub-interface
+            encap: vlan-7
+            mtu: 9000
+            address: 5.1.0.2/31
+            bgp_peers:
+              - peer_ip: 53.52.0.3
+                remote_asn: 16004
+                local_asn: 17003
+                local_asn_config: none       # APIC "no options"
+                admin_state: enabled
+
+          # ===== EXAMPLE 2: routed port (no encap) =====
+          # - node_id: 1110
+          #   pod_id: 1
+          #   path: eth1/5
+          #   interface_type: l3-port
+          #   mtu: 9000
+          #   address: 1.1.0.6/31
+
+          # ===== EXAMPLE 3: SVI =====
+          # - node_id: 1110
+          #   pod_id: 1
+          #   path: eth1/3
+          #   interface_type: ext-svi
+          #   mode: regular
+          #   encap: vlan-8
+          #   mtu: 9000
+          #   address: 1.1.0.9/30
+          #   auto_state: disabled
+
+          # ===== EXAMPLE 4: vPC SVI (address per side, not per intf) =====
+          # - node_id: 1109-1110             # vPC node pair
+          #   pod_id: 1
+          #   path: my_vpc_polgrp            # vPC interface policy group name
+          #   interface_type: ext-svi
+          #   encap: vlan-100
+          #   vpc_members:
+          #     - side: A
+          #       address: 10.0.100.2/24
+          #     - side: B
+          #       address: 10.0.100.3/24
+
+# ---------------------------------------------------------
+# [OPTIONAL] External EPGs — delete this whole section
+#            if the L3Out has no external EPGs yet
+#
+# PER EXTERNAL EPG:
+#   [REQUIRED] name
+#   [OPTIONAL] description
+#   [OPTIONAL] preferred_group: true | false
+#   [OPTIONAL] subnets   (list)
+#   [OPTIONAL] contracts (list of name + type)
+#
+# PER SUBNET:
+#   [REQUIRED] subnet
+#   [OPTIONAL] subnet_name
+#   [OPTIONAL] scope — string or list. Options:
+#       import-security   classify external traffic (default)
+#       shared-security   shared route control security
+#       export-rtctrl     export route control subnet
+#       import-rtctrl     import route control subnet
+#       shared-rtctrl     shared route control subnet
+#       Example list:  scope: [import-security, shared-rtctrl]
+#   [OPTIONAL] aggregate — string or list. Options:
+#       import-rtctrl | export-rtctrl | shared-rtctrl
+#       (aggregate export/import/shared, e.g. with 0.0.0.0/0)
+#
+# PER CONTRACT:
+#   [REQUIRED] name, type (provider | consumer)
+# ---------------------------------------------------------
+external_epgs:
+  - name: example_extepg
+    # description: "External networks"
+    # preferred_group: false
+    subnets:
+      - subnet: 0.0.0.0/0
+        subnet_name: default_route
+        scope: export-rtctrl
+        # aggregate: export-rtctrl
+    # contracts:
+    #   - name: permit_web
+    #     type: consumer
+    #   - name: permit_mgmt
+    #     type: provider
