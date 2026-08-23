@@ -1,0 +1,3786 @@
+annotations: []
+smart_annotations: []
+nodes:
+  - boot_disk_size: null
+    configuration:
+      - name: nxos_config.txt
+        content: |-
+          hostname L1103
+          vdc L1103 id 1
+            limit-resource vlan minimum 16 maximum 4094
+            limit-resource vrf minimum 2 maximum 4096
+            limit-resource port-channel minimum 0 maximum 511
+            limit-resource u4route-mem minimum 248 maximum 248
+            limit-resource u6route-mem minimum 96 maximum 96
+            limit-resource m4route-mem minimum 58 maximum 58
+            limit-resource m6route-mem minimum 8 maximum 8
+
+          feature telnet
+          feature scp-server
+          feature interface-vlan
+
+          no password strength-check
+          username admin password cisco role network-admin
+          username adminbackup password 5 ! role network-operator
+          username adminbackup passphrase lifetime 99999 warntime 14 gracetime 3
+          username cisco password cisco role network-admin
+          username lab password 5 $1$buoy/oqy$.EXQz8rCn72ii8qtdldj00 role network-admin
+          username lab passphrase lifetime 99999 warntime 14 gracetime 3
+          no ip domain-lookup
+          ip domain-name virl.info
+          system default switchport
+          no logging event trunk-status enable
+          system jumbomtu 9216
+          copp profile strict
+
+
+          vlan dot1Q tag native
+
+          vlan 1
+
+          cdp enable
+          vrf context management
+           ip route 10.0.1.0/24 192.168.255.1
+          hardware access-list tcam region racl 512
+          hardware access-list tcam region arp-ether 256 double-wide
+          hardware forwarding unicast trace
+
+
+          interface vlan1
+            shutdown
+            no description
+            no ip address
+
+          interface Ethernet1/1 - 64
+            no description
+            no switchport
+            shutdown
+
+          interface mgmt0
+           no shutdown
+           description to mgmt
+           duplex full
+           no cdp
+           vrf member management
+           ip address 192.168.255.11 255.255.255.0
+
+          interface loopback0
+            description USED FOR BGP,LOGGING,OSPF,SSH,SNMP,TACACS+,MPLS,LISP
+            ip address 172.17.1.11 255.255.255.255
+            no shutdown
+
+          line console
+            exec-timeout 0
+            terminal width 132
+          line vty
+            exec-timeout 0
+            terminal width 132
+          boot nxos bootflash:/nxos.9.3.6.bin sup-1
+
+          logging console 7
+          logging monitor 7
+    cpu_limit: null
+    cpus: 4
+    data_volume: null
+    hide_links: false
+    id: n0
+    image_definition: nxosv9300-10-6-2-f
+    label: L1103
+    node_definition: nxosv9000
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: -400
+    y: -160
+    interfaces:
+      - id: i0
+        label: Loopback0
+        mac_address: null
+        type: loopback
+      - id: i1
+        label: mgmt0
+        mac_address: null
+        type: physical
+        slot: 0
+      - id: i2
+        label: Ethernet1/1
+        mac_address: null
+        type: physical
+        slot: 1
+      - id: i3
+        label: Ethernet1/2
+        mac_address: null
+        type: physical
+        slot: 2
+      - id: i4
+        label: Ethernet1/3
+        mac_address: null
+        type: physical
+        slot: 3
+      - id: i5
+        label: Ethernet1/4
+        mac_address: null
+        type: physical
+        slot: 4
+      - id: i6
+        label: Ethernet1/5
+        mac_address: null
+        type: physical
+        slot: 5
+      - id: i7
+        label: Ethernet1/6
+        mac_address: null
+        type: physical
+        slot: 6
+      - id: i8
+        label: Ethernet1/7
+        mac_address: null
+        type: physical
+        slot: 7
+      - id: i9
+        label: Ethernet1/8
+        mac_address: null
+        type: physical
+        slot: 8
+  - boot_disk_size: null
+    configuration:
+      - name: nxos_config.txt
+        content: |-
+          hostname L1104
+          vdc L1104 id 1
+            limit-resource vlan minimum 16 maximum 4094
+            limit-resource vrf minimum 2 maximum 4096
+            limit-resource port-channel minimum 0 maximum 511
+            limit-resource u4route-mem minimum 248 maximum 248
+            limit-resource u6route-mem minimum 96 maximum 96
+            limit-resource m4route-mem minimum 58 maximum 58
+            limit-resource m6route-mem minimum 8 maximum 8
+
+          feature telnet
+          feature scp-server
+          feature interface-vlan
+
+          no password strength-check
+          username admin password cisco role network-admin
+          username adminbackup password 5 ! role network-operator
+          username adminbackup passphrase lifetime 99999 warntime 14 gracetime 3
+          username cisco password cisco role network-admin
+          username lab password 5 $1$buoy/oqy$.EXQz8rCn72ii8qtdldj00 role network-admin
+          username lab passphrase lifetime 99999 warntime 14 gracetime 3
+          no ip domain-lookup
+          ip domain-name virl.info
+          system default switchport
+          no logging event trunk-status enable
+          system jumbomtu 9216
+          copp profile strict
+
+
+          vlan dot1Q tag native
+
+          vlan 1
+
+          cdp enable
+          vrf context management
+           ip route 10.0.1.0/24 192.168.255.1
+          hardware access-list tcam region racl 512
+          hardware access-list tcam region arp-ether 256 double-wide
+          hardware forwarding unicast trace
+
+
+          interface vlan1
+            shutdown
+            no description
+            no ip address
+
+          interface Ethernet1/1 - 64
+            no description
+            no switchport
+            shutdown
+
+          interface mgmt0
+           no shutdown
+           description to mgmt
+           duplex full
+           no cdp
+           vrf member management
+           ip address 192.168.255.12 255.255.255.0
+
+          interface loopback0
+            description USED FOR BGP,LOGGING,OSPF,SSH,SNMP,TACACS+,MPLS,LISP
+            ip address 172.17.1.12 255.255.255.255
+            no shutdown
+
+          line console
+            exec-timeout 0
+            terminal width 132
+          line vty
+            exec-timeout 0
+            terminal width 132
+          boot nxos bootflash:/nxos.9.3.6.bin sup-1
+
+          logging console 7
+          logging monitor 7
+    cpu_limit: null
+    cpus: 4
+    data_volume: null
+    hide_links: false
+    id: n1
+    image_definition: nxosv9300-10-6-2-f
+    label: L1104
+    node_definition: nxosv9000
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: -120
+    y: -160
+    interfaces:
+      - id: i0
+        label: Loopback0
+        mac_address: null
+        type: loopback
+      - id: i1
+        label: mgmt0
+        mac_address: null
+        type: physical
+        slot: 0
+      - id: i2
+        label: Ethernet1/1
+        mac_address: null
+        type: physical
+        slot: 1
+      - id: i3
+        label: Ethernet1/2
+        mac_address: null
+        type: physical
+        slot: 2
+      - id: i4
+        label: Ethernet1/3
+        mac_address: null
+        type: physical
+        slot: 3
+      - id: i5
+        label: Ethernet1/4
+        mac_address: null
+        type: physical
+        slot: 4
+      - id: i6
+        label: Ethernet1/5
+        mac_address: null
+        type: physical
+        slot: 5
+      - id: i7
+        label: Ethernet1/6
+        mac_address: null
+        type: physical
+        slot: 6
+      - id: i8
+        label: Ethernet1/7
+        mac_address: null
+        type: physical
+        slot: 7
+      - id: i9
+        label: Ethernet1/8
+        mac_address: null
+        type: physical
+        slot: 8
+  - boot_disk_size: null
+    configuration:
+      - name: nxos_config.txt
+        content: |-
+          hostname SW5
+          vdc SW5 id 1
+            limit-resource vlan minimum 16 maximum 4094
+            limit-resource vrf minimum 2 maximum 4096
+            limit-resource port-channel minimum 0 maximum 511
+            limit-resource u4route-mem minimum 248 maximum 248
+            limit-resource u6route-mem minimum 96 maximum 96
+            limit-resource m4route-mem minimum 58 maximum 58
+            limit-resource m6route-mem minimum 8 maximum 8
+
+          feature telnet
+          feature scp-server
+          feature interface-vlan
+
+          no password strength-check
+          username admin password cisco role network-admin
+          username adminbackup password 5 ! role network-operator
+          username adminbackup passphrase lifetime 99999 warntime 14 gracetime 3
+          username cisco password cisco role network-admin
+          username lab password 5 $1$buoy/oqy$.EXQz8rCn72ii8qtdldj00 role network-admin
+          username lab passphrase lifetime 99999 warntime 14 gracetime 3
+          no ip domain-lookup
+          ip domain-name virl.info
+          system default switchport
+          no logging event trunk-status enable
+          system jumbomtu 9216
+          copp profile strict
+
+
+          vlan dot1Q tag native
+
+          vlan 1
+
+          cdp enable
+          vrf context management
+           ip route 10.0.1.0/24 192.168.255.1
+          hardware access-list tcam region racl 512
+          hardware access-list tcam region arp-ether 256 double-wide
+          hardware forwarding unicast trace
+
+
+          interface vlan1
+            shutdown
+            no description
+            no ip address
+
+          interface Ethernet1/1 - 64
+            no description
+            no switchport
+            shutdown
+
+          interface mgmt0
+           no shutdown
+           description to mgmt
+           duplex full
+           no cdp
+           vrf member management
+           ip address 192.168.255.13 255.255.255.0
+
+          interface loopback0
+            description USED FOR BGP,LOGGING,OSPF,SSH,SNMP,TACACS+,MPLS,LISP
+            ip address 172.17.1.13 255.255.255.255
+            no shutdown
+
+          line console
+            exec-timeout 0
+            terminal width 132
+          line vty
+            exec-timeout 0
+            terminal width 132
+          boot nxos bootflash:/nxos.9.3.6.bin sup-1
+
+          logging console 7
+          logging monitor 7
+    cpu_limit: null
+    cpus: 4
+    data_volume: null
+    hide_links: false
+    id: n2
+    image_definition: nxosv9300-10-6-2-f
+    label: SW5
+    node_definition: nxosv9000
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: -400
+    y: 0
+    interfaces:
+      - id: i0
+        label: Loopback0
+        mac_address: null
+        type: loopback
+      - id: i1
+        label: mgmt0
+        mac_address: null
+        type: physical
+        slot: 0
+      - id: i2
+        label: Ethernet1/1
+        mac_address: null
+        type: physical
+        slot: 1
+      - id: i3
+        label: Ethernet1/2
+        mac_address: null
+        type: physical
+        slot: 2
+      - id: i4
+        label: Ethernet1/3
+        mac_address: null
+        type: physical
+        slot: 3
+      - id: i5
+        label: Ethernet1/4
+        mac_address: null
+        type: physical
+        slot: 4
+      - id: i6
+        label: Ethernet1/5
+        mac_address: null
+        type: physical
+        slot: 5
+      - id: i7
+        label: Ethernet1/6
+        mac_address: null
+        type: physical
+        slot: 6
+      - id: i8
+        label: Ethernet1/7
+        mac_address: null
+        type: physical
+        slot: 7
+      - id: i9
+        label: Ethernet1/8
+        mac_address: null
+        type: physical
+        slot: 8
+  - boot_disk_size: null
+    configuration:
+      - name: nxos_config.txt
+        content: |-
+          hostname SW6
+          vdc SW6 id 1
+            limit-resource vlan minimum 16 maximum 4094
+            limit-resource vrf minimum 2 maximum 4096
+            limit-resource port-channel minimum 0 maximum 511
+            limit-resource u4route-mem minimum 248 maximum 248
+            limit-resource u6route-mem minimum 96 maximum 96
+            limit-resource m4route-mem minimum 58 maximum 58
+            limit-resource m6route-mem minimum 8 maximum 8
+
+          feature telnet
+          feature scp-server
+          feature interface-vlan
+
+          no password strength-check
+          username admin password cisco role network-admin
+          username adminbackup password 5 ! role network-operator
+          username adminbackup passphrase lifetime 99999 warntime 14 gracetime 3
+          username cisco password cisco role network-admin
+          username lab password 5 $1$buoy/oqy$.EXQz8rCn72ii8qtdldj00 role network-admin
+          username lab passphrase lifetime 99999 warntime 14 gracetime 3
+          no ip domain-lookup
+          ip domain-name virl.info
+          system default switchport
+          no logging event trunk-status enable
+          system jumbomtu 9216
+          copp profile strict
+
+
+          vlan dot1Q tag native
+
+          vlan 1
+
+          cdp enable
+          vrf context management
+           ip route 10.0.1.0/24 192.168.255.1
+          hardware access-list tcam region racl 512
+          hardware access-list tcam region arp-ether 256 double-wide
+          hardware forwarding unicast trace
+
+
+          interface vlan1
+            shutdown
+            no description
+            no ip address
+
+          interface Ethernet1/1 - 64
+            no description
+            no switchport
+            shutdown
+
+          interface mgmt0
+           no shutdown
+           description to mgmt
+           duplex full
+           no cdp
+           vrf member management
+           ip address 192.168.255.14 255.255.255.0
+
+          interface loopback0
+            description USED FOR BGP,LOGGING,OSPF,SSH,SNMP,TACACS+,MPLS,LISP
+            ip address 172.17.1.14 255.255.255.255
+            no shutdown
+
+          line console
+            exec-timeout 0
+            terminal width 132
+          line vty
+            exec-timeout 0
+            terminal width 132
+          boot nxos bootflash:/nxos.9.3.6.bin sup-1
+
+          logging console 7
+          logging monitor 7
+    cpu_limit: null
+    cpus: 4
+    data_volume: null
+    hide_links: false
+    id: n3
+    image_definition: nxosv9300-10-6-2-f
+    label: SW6
+    node_definition: nxosv9000
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: -120
+    y: 0
+    interfaces:
+      - id: i0
+        label: Loopback0
+        mac_address: null
+        type: loopback
+      - id: i1
+        label: mgmt0
+        mac_address: null
+        type: physical
+        slot: 0
+      - id: i2
+        label: Ethernet1/1
+        mac_address: null
+        type: physical
+        slot: 1
+      - id: i3
+        label: Ethernet1/2
+        mac_address: null
+        type: physical
+        slot: 2
+      - id: i4
+        label: Ethernet1/3
+        mac_address: null
+        type: physical
+        slot: 3
+      - id: i5
+        label: Ethernet1/4
+        mac_address: null
+        type: physical
+        slot: 4
+      - id: i6
+        label: Ethernet1/5
+        mac_address: null
+        type: physical
+        slot: 5
+      - id: i7
+        label: Ethernet1/6
+        mac_address: null
+        type: physical
+        slot: 6
+      - id: i8
+        label: Ethernet1/7
+        mac_address: null
+        type: physical
+        slot: 7
+      - id: i9
+        label: Ethernet1/8
+        mac_address: null
+        type: physical
+        slot: 8
+  - boot_disk_size: null
+    configuration:
+      - name: nxos_config.txt
+        content: |-
+          hostname SW1
+          vdc SW1 id 1
+            limit-resource vlan minimum 16 maximum 4094
+            limit-resource vrf minimum 2 maximum 4096
+            limit-resource port-channel minimum 0 maximum 511
+            limit-resource u4route-mem minimum 248 maximum 248
+            limit-resource u6route-mem minimum 96 maximum 96
+            limit-resource m4route-mem minimum 58 maximum 58
+            limit-resource m6route-mem minimum 8 maximum 8
+
+          feature telnet
+          feature scp-server
+          feature interface-vlan
+
+          no password strength-check
+          username admin password cisco role network-admin
+          username adminbackup password 5 ! role network-operator
+          username adminbackup passphrase lifetime 99999 warntime 14 gracetime 3
+          username cisco password cisco role network-admin
+          username lab password 5 $1$buoy/oqy$.EXQz8rCn72ii8qtdldj00 role network-admin
+          username lab passphrase lifetime 99999 warntime 14 gracetime 3
+          no ip domain-lookup
+          ip domain-name virl.info
+          system default switchport
+          no logging event trunk-status enable
+          system jumbomtu 9216
+          copp profile strict
+
+
+          vlan dot1Q tag native
+
+          vlan 1
+
+          cdp enable
+          vrf context management
+           ip route 10.0.1.0/24 192.168.255.1
+          hardware access-list tcam region racl 512
+          hardware access-list tcam region arp-ether 256 double-wide
+          hardware forwarding unicast trace
+
+
+          interface vlan1
+            shutdown
+            no description
+            no ip address
+
+          interface Ethernet1/1 - 64
+            no description
+            no switchport
+            shutdown
+
+          interface mgmt0
+           no shutdown
+           description to mgmt
+           duplex full
+           no cdp
+           vrf member management
+           ip address 192.168.255.15 255.255.255.0
+
+          interface loopback0
+            description USED FOR BGP,LOGGING,OSPF,SSH,SNMP,TACACS+,MPLS,LISP
+            ip address 172.17.1.15 255.255.255.255
+            no shutdown
+
+          line console
+            exec-timeout 0
+            terminal width 132
+          line vty
+            exec-timeout 0
+            terminal width 132
+          boot nxos bootflash:/nxos.9.3.6.bin sup-1
+
+          logging console 7
+          logging monitor 7
+    cpu_limit: null
+    cpus: 4
+    data_volume: null
+    hide_links: false
+    id: n4
+    image_definition: nxosv9300-10-6-2-f
+    label: SW1
+    node_definition: nxosv9000
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: -400
+    y: 160
+    interfaces:
+      - id: i0
+        label: Loopback0
+        mac_address: null
+        type: loopback
+      - id: i1
+        label: mgmt0
+        mac_address: null
+        type: physical
+        slot: 0
+      - id: i2
+        label: Ethernet1/1
+        mac_address: null
+        type: physical
+        slot: 1
+      - id: i3
+        label: Ethernet1/2
+        mac_address: null
+        type: physical
+        slot: 2
+      - id: i4
+        label: Ethernet1/3
+        mac_address: null
+        type: physical
+        slot: 3
+      - id: i5
+        label: Ethernet1/4
+        mac_address: null
+        type: physical
+        slot: 4
+      - id: i6
+        label: Ethernet1/5
+        mac_address: null
+        type: physical
+        slot: 5
+      - id: i7
+        label: Ethernet1/6
+        mac_address: null
+        type: physical
+        slot: 6
+      - id: i8
+        label: Ethernet1/7
+        mac_address: null
+        type: physical
+        slot: 7
+      - id: i9
+        label: Ethernet1/8
+        mac_address: null
+        type: physical
+        slot: 8
+  - boot_disk_size: null
+    configuration:
+      - name: nxos_config.txt
+        content: |-
+          hostname SW2
+          vdc SW2 id 1
+            limit-resource vlan minimum 16 maximum 4094
+            limit-resource vrf minimum 2 maximum 4096
+            limit-resource port-channel minimum 0 maximum 511
+            limit-resource u4route-mem minimum 248 maximum 248
+            limit-resource u6route-mem minimum 96 maximum 96
+            limit-resource m4route-mem minimum 58 maximum 58
+            limit-resource m6route-mem minimum 8 maximum 8
+
+          feature telnet
+          feature scp-server
+          feature interface-vlan
+
+          no password strength-check
+          username admin password cisco role network-admin
+          username adminbackup password 5 ! role network-operator
+          username adminbackup passphrase lifetime 99999 warntime 14 gracetime 3
+          username cisco password cisco role network-admin
+          username lab password 5 $1$buoy/oqy$.EXQz8rCn72ii8qtdldj00 role network-admin
+          username lab passphrase lifetime 99999 warntime 14 gracetime 3
+          no ip domain-lookup
+          ip domain-name virl.info
+          system default switchport
+          no logging event trunk-status enable
+          system jumbomtu 9216
+          copp profile strict
+
+
+          vlan dot1Q tag native
+
+          vlan 1
+
+          cdp enable
+          vrf context management
+           ip route 10.0.1.0/24 192.168.255.1
+          hardware access-list tcam region racl 512
+          hardware access-list tcam region arp-ether 256 double-wide
+          hardware forwarding unicast trace
+
+
+          interface vlan1
+            shutdown
+            no description
+            no ip address
+
+          interface Ethernet1/1 - 64
+            no description
+            no switchport
+            shutdown
+
+          interface mgmt0
+           no shutdown
+           description to mgmt
+           duplex full
+           no cdp
+           vrf member management
+           ip address 192.168.255.16 255.255.255.0
+
+          interface loopback0
+            description USED FOR BGP,LOGGING,OSPF,SSH,SNMP,TACACS+,MPLS,LISP
+            ip address 172.17.1.16 255.255.255.255
+            no shutdown
+
+          line console
+            exec-timeout 0
+            terminal width 132
+          line vty
+            exec-timeout 0
+            terminal width 132
+          boot nxos bootflash:/nxos.9.3.6.bin sup-1
+
+          logging console 7
+          logging monitor 7
+    cpu_limit: null
+    cpus: 4
+    data_volume: null
+    hide_links: false
+    id: n5
+    image_definition: nxosv9300-10-6-2-f
+    label: SW2
+    node_definition: nxosv9000
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: -120
+    y: 160
+    interfaces:
+      - id: i0
+        label: Loopback0
+        mac_address: null
+        type: loopback
+      - id: i1
+        label: mgmt0
+        mac_address: null
+        type: physical
+        slot: 0
+      - id: i2
+        label: Ethernet1/1
+        mac_address: null
+        type: physical
+        slot: 1
+      - id: i3
+        label: Ethernet1/2
+        mac_address: null
+        type: physical
+        slot: 2
+      - id: i4
+        label: Ethernet1/3
+        mac_address: null
+        type: physical
+        slot: 3
+      - id: i5
+        label: Ethernet1/4
+        mac_address: null
+        type: physical
+        slot: 4
+      - id: i6
+        label: Ethernet1/5
+        mac_address: null
+        type: physical
+        slot: 5
+      - id: i7
+        label: Ethernet1/6
+        mac_address: null
+        type: physical
+        slot: 6
+      - id: i8
+        label: Ethernet1/7
+        mac_address: null
+        type: physical
+        slot: 7
+      - id: i9
+        label: Ethernet1/8
+        mac_address: null
+        type: physical
+        slot: 8
+  - boot_disk_size: null
+    configuration:
+      - name: ios_config.txt
+        content: |-
+          service timestamps debug datetime msec
+          service timestamps log datetime msec
+          no service password-encryption
+          service compress-config
+          no service config
+          enable password cisco
+          ip classless
+          ip subnet-zero
+          ip domain name cml.lab
+          no ip domain lookup
+          !
+          username cisco privilege 15 secret cisco
+          !
+          line vty 0 4
+          transport input ssh telnet
+          transport input ssh telnet
+          exec-timeout 0 0
+          terminal width 132
+          logging synchronous
+          password cisco
+          login local
+          !
+          line con 0
+          password cisco
+          terminal width 132
+          exec-timeout 0
+          logging synchronous
+          privilege level 15
+          !
+          hostname SW1-IOL
+          !
+          boot-start-marker
+          boot-end-marker
+          !
+          vrf definition mgmt
+           !
+           address-family ipv4
+           exit-address-family
+          !
+          logging console
+          !
+          no aaa new-model
+          !
+          vtp domain virl.lab
+          vtp mode transparent
+          !
+          vlan 2
+            name ank_vlan2
+          !
+          !
+          cdp run
+          !
+          !
+          ip cef
+          no ipv6 cef
+          !
+          spanning-tree mode pvst
+          spanning-tree extend system-id
+          !
+          !
+          interface Loopback0
+           description USED FOR BGP,LOGGING,OSPF,SSH,SNMP,TACACS+,MPLS,LISP
+           ip address 172.17.1.20 255.255.255.255
+           no shutdown
+          !
+          interface Ethernet0/0
+           description out-of-band interface
+           no switchport
+           vrf forwarding mgmt
+           duplex full
+           ip address 192.168.255.20 255.255.255.0
+           no shutdown
+           no cdp enable
+          !
+          ip route vrf mgmt 10.0.1.0 255.255.255.0 192.168.255.1
+          !
+          interface range Ethernet0/1-3
+           duplex full
+           no switchport
+           no ip address
+           no shutdown
+          !
+          !
+          ip forward-protocol nd
+          !
+          no ip http server
+          no ip http secure-server
+          !
+          !
+          control-plane
+          !
+          crypto key generate rsa mod 3072
+          !
+          end
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n6
+    image_definition: null
+    label: SW1-IOL
+    node_definition: ioll2-xe
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: 440
+    y: -400
+    interfaces:
+      - id: i0
+        label: Loopback0
+        mac_address: null
+        type: loopback
+      - id: i1
+        label: Ethernet0/0
+        mac_address: null
+        type: physical
+        slot: 0
+      - id: i2
+        label: Ethernet0/1
+        mac_address: null
+        type: physical
+        slot: 1
+      - id: i3
+        label: Ethernet0/2
+        mac_address: null
+        type: physical
+        slot: 2
+      - id: i4
+        label: Ethernet0/3
+        mac_address: null
+        type: physical
+        slot: 3
+      - id: i5
+        label: Ethernet1/0
+        mac_address: null
+        type: physical
+        slot: 4
+      - id: i6
+        label: Ethernet1/1
+        mac_address: null
+        type: physical
+        slot: 5
+  - boot_disk_size: null
+    configuration:
+      - name: ios_config.txt
+        content: |-
+          service timestamps debug datetime msec
+          service timestamps log datetime msec
+          no service password-encryption
+          service compress-config
+          no service config
+          enable password cisco
+          ip classless
+          ip subnet-zero
+          ip domain name cml.lab
+          no ip domain lookup
+          !
+          username cisco privilege 15 secret cisco
+          !
+          line vty 0 4
+          transport input ssh telnet
+          transport input ssh telnet
+          exec-timeout 0 0
+          terminal width 132
+          logging synchronous
+          password cisco
+          login local
+          !
+          line con 0
+          password cisco
+          terminal width 132
+          exec-timeout 0
+          logging synchronous
+          privilege level 15
+          !
+          hostname SW2-IOL
+          !
+          boot-start-marker
+          boot-end-marker
+          !
+          vrf definition mgmt
+           !
+           address-family ipv4
+           exit-address-family
+          !
+          logging console
+          !
+          no aaa new-model
+          !
+          vtp domain virl.lab
+          vtp mode transparent
+          !
+          vlan 2
+            name ank_vlan2
+          !
+          !
+          cdp run
+          !
+          !
+          ip cef
+          no ipv6 cef
+          !
+          spanning-tree mode pvst
+          spanning-tree extend system-id
+          !
+          !
+          interface Loopback0
+           description USED FOR BGP,LOGGING,OSPF,SSH,SNMP,TACACS+,MPLS,LISP
+           ip address 172.17.1.21 255.255.255.255
+           no shutdown
+          !
+          interface Ethernet0/0
+           description out-of-band interface
+           no switchport
+           vrf forwarding mgmt
+           duplex full
+           ip address 192.168.255.21 255.255.255.0
+           no shutdown
+           no cdp enable
+          !
+          ip route vrf mgmt 10.0.1.0 255.255.255.0 192.168.255.1
+          !
+          interface range Ethernet0/1-3
+           duplex full
+           no switchport
+           no ip address
+           no shutdown
+          !
+          !
+          ip forward-protocol nd
+          !
+          no ip http server
+          no ip http secure-server
+          !
+          !
+          control-plane
+          !
+          crypto key generate rsa mod 3072
+          !
+          end
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n7
+    image_definition: null
+    label: SW2-IOL
+    node_definition: ioll2-xe
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: 640
+    y: -400
+    interfaces:
+      - id: i0
+        label: Loopback0
+        mac_address: null
+        type: loopback
+      - id: i1
+        label: Ethernet0/0
+        mac_address: null
+        type: physical
+        slot: 0
+      - id: i2
+        label: Ethernet0/1
+        mac_address: null
+        type: physical
+        slot: 1
+      - id: i3
+        label: Ethernet0/2
+        mac_address: null
+        type: physical
+        slot: 2
+      - id: i4
+        label: Ethernet0/3
+        mac_address: null
+        type: physical
+        slot: 3
+      - id: i5
+        label: Ethernet1/0
+        mac_address: null
+        type: physical
+        slot: 4
+      - id: i6
+        label: Ethernet1/1
+        mac_address: null
+        type: physical
+        slot: 5
+  - boot_disk_size: null
+    configuration:
+      - name: ios_config.txt
+        content: |-
+          hostname PA-FW1
+          !
+          vrf definition mgmt
+           !
+           address-family ipv4
+           exit-address-family
+          !
+          logging console
+          ipv6 unicast-routing
+          !
+          !enable password cisco
+          enable secret cisco
+          boot-start-marker
+          boot-end-marker
+          !
+          !
+          no aaa new-model
+          !
+          !
+          service timestamps debug datetime msec
+          service timestamps log datetime msec
+          no service password-encryption
+          no service config
+          !
+          ip classless
+          ip subnet-zero
+          no ip domain lookup
+          ip domain name virl.info
+          !
+          ip ssh server algorithm authentication password
+          username cisco privilege 15 secret cisco
+          line con 0
+           exec-timeout 0 0
+           terminal width 132
+           privilege level 15
+           history size 200
+           logging synchronous
+           terminal width 132
+           transport preferred none
+           stopbits 1
+          line vty 0 4
+           login local
+           logging synchronous
+           terminal width 132
+           exec-timeout 0 0
+           transport input telnet ssh
+           transport output telnet ssh
+          !
+          cdp run
+          !
+          !
+          interface Loopback0
+              description USED FOR BGP,LOGGING,OSPF,SSH,SNMP,TACACS+,MPLS,LISP
+              ip address 172.17.1.22 255.255.255.255
+              no shutdown
+              no cdp enable
+          interface Ethernet0/0
+              description out-of-band interface
+              vrf forwarding mgmt
+              ip address 192.168.255.22 255.255.255.0
+              no shutdown
+          interface Ethernet0/1-3
+              no ip address
+              shutdown
+          !
+          ip http secure-server
+          ip scp server enable
+          ip route vrf mgmt 10.0.1.0 255.255.255.0 192.168.255.1
+          !
+          ! overwrite default banners
+          no banner exec
+          no banner incoming
+          no banner login
+          !
+          crypto key generate rsa mod 3072
+          !
+          end
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n8
+    image_definition: null
+    label: PA-FW1
+    node_definition: iol-xe
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: -40
+    y: 160
+    interfaces:
+      - id: i0
+        label: Loopback0
+        mac_address: null
+        type: loopback
+      - id: i1
+        label: Ethernet0/0
+        mac_address: null
+        type: physical
+        slot: 0
+      - id: i2
+        label: Ethernet0/1
+        mac_address: null
+        type: physical
+        slot: 1
+      - id: i3
+        label: Ethernet0/2
+        mac_address: null
+        type: physical
+        slot: 2
+      - id: i4
+        label: Ethernet0/3
+        mac_address: null
+        type: physical
+        slot: 3
+  - boot_disk_size: null
+    configuration:
+      - name: ios_config.txt
+        content: |-
+          hostname PA-FW2
+          !
+          vrf definition mgmt
+           !
+           address-family ipv4
+           exit-address-family
+          !
+          logging console
+          ipv6 unicast-routing
+          !
+          !enable password cisco
+          enable secret cisco
+          boot-start-marker
+          boot-end-marker
+          !
+          !
+          no aaa new-model
+          !
+          !
+          service timestamps debug datetime msec
+          service timestamps log datetime msec
+          no service password-encryption
+          no service config
+          !
+          ip classless
+          ip subnet-zero
+          no ip domain lookup
+          ip domain name virl.info
+          !
+          ip ssh server algorithm authentication password
+          username cisco privilege 15 secret cisco
+          line con 0
+           exec-timeout 0 0
+           terminal width 132
+           privilege level 15
+           history size 200
+           logging synchronous
+           terminal width 132
+           transport preferred none
+           stopbits 1
+          line vty 0 4
+           login local
+           logging synchronous
+           terminal width 132
+           exec-timeout 0 0
+           transport input telnet ssh
+           transport output telnet ssh
+          !
+          cdp run
+          !
+          !
+          interface Loopback0
+              description USED FOR BGP,LOGGING,OSPF,SSH,SNMP,TACACS+,MPLS,LISP
+              ip address 172.17.1.23 255.255.255.255
+              no shutdown
+              no cdp enable
+          interface Ethernet0/0
+              description out-of-band interface
+              vrf forwarding mgmt
+              ip address 192.168.255.23 255.255.255.0
+              no shutdown
+          interface Ethernet0/1-3
+              no ip address
+              shutdown
+          !
+          ip http secure-server
+          ip scp server enable
+          ip route vrf mgmt 10.0.1.0 255.255.255.0 192.168.255.1
+          !
+          ! overwrite default banners
+          no banner exec
+          no banner incoming
+          no banner login
+          !
+          crypto key generate rsa mod 3072
+          !
+          end
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n9
+    image_definition: null
+    label: PA-FW2
+    node_definition: iol-xe
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: 200
+    y: 160
+    interfaces:
+      - id: i0
+        label: Loopback0
+        mac_address: null
+        type: loopback
+      - id: i1
+        label: Ethernet0/0
+        mac_address: null
+        type: physical
+        slot: 0
+      - id: i2
+        label: Ethernet0/1
+        mac_address: null
+        type: physical
+        slot: 1
+      - id: i3
+        label: Ethernet0/2
+        mac_address: null
+        type: physical
+        slot: 2
+      - id: i4
+        label: Ethernet0/3
+        mac_address: null
+        type: physical
+        slot: 3
+  - boot_disk_size: null
+    configuration:
+      - name: ios_config.txt
+        content: |-
+          hostname ASA1
+          !
+          vrf definition mgmt
+           !
+           address-family ipv4
+           exit-address-family
+          !
+          logging console
+          ipv6 unicast-routing
+          !
+          !enable password cisco
+          enable secret cisco
+          boot-start-marker
+          boot-end-marker
+          !
+          !
+          no aaa new-model
+          !
+          !
+          service timestamps debug datetime msec
+          service timestamps log datetime msec
+          no service password-encryption
+          no service config
+          !
+          ip classless
+          ip subnet-zero
+          no ip domain lookup
+          ip domain name virl.info
+          !
+          ip ssh server algorithm authentication password
+          username cisco privilege 15 secret cisco
+          line con 0
+           exec-timeout 0 0
+           terminal width 132
+           privilege level 15
+           history size 200
+           logging synchronous
+           terminal width 132
+           transport preferred none
+           stopbits 1
+          line vty 0 4
+           login local
+           logging synchronous
+           terminal width 132
+           exec-timeout 0 0
+           transport input telnet ssh
+           transport output telnet ssh
+          !
+          cdp run
+          !
+          !
+          interface Loopback0
+              description USED FOR BGP,LOGGING,OSPF,SSH,SNMP,TACACS+,MPLS,LISP
+              ip address 172.17.1.24 255.255.255.255
+              no shutdown
+              no cdp enable
+          interface Ethernet0/0
+              description out-of-band interface
+              vrf forwarding mgmt
+              ip address 192.168.255.24 255.255.255.0
+              no shutdown
+          interface Ethernet0/1-3
+              no ip address
+              shutdown
+          !
+          ip http secure-server
+          ip scp server enable
+          ip route vrf mgmt 10.0.1.0 255.255.255.0 192.168.255.1
+          !
+          ! overwrite default banners
+          no banner exec
+          no banner incoming
+          no banner login
+          !
+          crypto key generate rsa mod 3072
+          !
+          end
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n10
+    image_definition: null
+    label: ASA1
+    node_definition: iol-xe
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: 440
+    y: -160
+    interfaces:
+      - id: i0
+        label: Loopback0
+        mac_address: null
+        type: loopback
+      - id: i1
+        label: Ethernet0/0
+        mac_address: null
+        type: physical
+        slot: 0
+      - id: i2
+        label: Ethernet0/1
+        mac_address: null
+        type: physical
+        slot: 1
+      - id: i3
+        label: Ethernet0/2
+        mac_address: null
+        type: physical
+        slot: 2
+      - id: i4
+        label: Ethernet0/3
+        mac_address: null
+        type: physical
+        slot: 3
+  - boot_disk_size: null
+    configuration:
+      - name: ios_config.txt
+        content: |-
+          hostname ASA2
+          !
+          vrf definition mgmt
+           !
+           address-family ipv4
+           exit-address-family
+          !
+          logging console
+          ipv6 unicast-routing
+          !
+          !enable password cisco
+          enable secret cisco
+          boot-start-marker
+          boot-end-marker
+          !
+          !
+          no aaa new-model
+          !
+          !
+          service timestamps debug datetime msec
+          service timestamps log datetime msec
+          no service password-encryption
+          no service config
+          !
+          ip classless
+          ip subnet-zero
+          no ip domain lookup
+          ip domain name virl.info
+          !
+          ip ssh server algorithm authentication password
+          username cisco privilege 15 secret cisco
+          line con 0
+           exec-timeout 0 0
+           terminal width 132
+           privilege level 15
+           history size 200
+           logging synchronous
+           terminal width 132
+           transport preferred none
+           stopbits 1
+          line vty 0 4
+           login local
+           logging synchronous
+           terminal width 132
+           exec-timeout 0 0
+           transport input telnet ssh
+           transport output telnet ssh
+          !
+          cdp run
+          !
+          !
+          interface Loopback0
+              description USED FOR BGP,LOGGING,OSPF,SSH,SNMP,TACACS+,MPLS,LISP
+              ip address 172.17.1.25 255.255.255.255
+              no shutdown
+              no cdp enable
+          interface Ethernet0/0
+              description out-of-band interface
+              vrf forwarding mgmt
+              ip address 192.168.255.25 255.255.255.0
+              no shutdown
+          interface Ethernet0/1-3
+              no ip address
+              shutdown
+          !
+          ip http secure-server
+          ip scp server enable
+          ip route vrf mgmt 10.0.1.0 255.255.255.0 192.168.255.1
+          !
+          ! overwrite default banners
+          no banner exec
+          no banner incoming
+          no banner login
+          !
+          crypto key generate rsa mod 3072
+          !
+          end
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n11
+    image_definition: null
+    label: ASA2
+    node_definition: iol-xe
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: 640
+    y: -160
+    interfaces:
+      - id: i0
+        label: Loopback0
+        mac_address: null
+        type: loopback
+      - id: i1
+        label: Ethernet0/0
+        mac_address: null
+        type: physical
+        slot: 0
+      - id: i2
+        label: Ethernet0/1
+        mac_address: null
+        type: physical
+        slot: 1
+      - id: i3
+        label: Ethernet0/2
+        mac_address: null
+        type: physical
+        slot: 2
+      - id: i4
+        label: Ethernet0/3
+        mac_address: null
+        type: physical
+        slot: 3
+  - boot_disk_size: null
+    configuration:
+      - name: ios_config.txt
+        content: |-
+          hostname S1-S2S-ASA
+          !
+          vrf definition mgmt
+           !
+           address-family ipv4
+           exit-address-family
+          !
+          logging console
+          ipv6 unicast-routing
+          !
+          !enable password cisco
+          enable secret cisco
+          boot-start-marker
+          boot-end-marker
+          !
+          !
+          no aaa new-model
+          !
+          !
+          service timestamps debug datetime msec
+          service timestamps log datetime msec
+          no service password-encryption
+          no service config
+          !
+          ip classless
+          ip subnet-zero
+          no ip domain lookup
+          ip domain name virl.info
+          !
+          ip ssh server algorithm authentication password
+          username cisco privilege 15 secret cisco
+          line con 0
+           exec-timeout 0 0
+           terminal width 132
+           privilege level 15
+           history size 200
+           logging synchronous
+           terminal width 132
+           transport preferred none
+           stopbits 1
+          line vty 0 4
+           login local
+           logging synchronous
+           terminal width 132
+           exec-timeout 0 0
+           transport input telnet ssh
+           transport output telnet ssh
+          !
+          cdp run
+          !
+          !
+          interface Loopback0
+              description USED FOR BGP,LOGGING,OSPF,SSH,SNMP,TACACS+,MPLS,LISP
+              ip address 172.17.1.26 255.255.255.255
+              no shutdown
+              no cdp enable
+          interface Ethernet0/0
+              description out-of-band interface
+              vrf forwarding mgmt
+              ip address 192.168.255.26 255.255.255.0
+              no shutdown
+          interface Ethernet0/1-3
+              no ip address
+              shutdown
+          !
+          ip http secure-server
+          ip scp server enable
+          ip route vrf mgmt 10.0.1.0 255.255.255.0 192.168.255.1
+          !
+          ! overwrite default banners
+          no banner exec
+          no banner incoming
+          no banner login
+          !
+          crypto key generate rsa mod 3072
+          !
+          end
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n12
+    image_definition: null
+    label: S1-S2S-ASA
+    node_definition: iol-xe
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: -400
+    y: 360
+    interfaces:
+      - id: i0
+        label: Loopback0
+        mac_address: null
+        type: loopback
+      - id: i1
+        label: Ethernet0/0
+        mac_address: null
+        type: physical
+        slot: 0
+      - id: i2
+        label: Ethernet0/1
+        mac_address: null
+        type: physical
+        slot: 1
+      - id: i3
+        label: Ethernet0/2
+        mac_address: null
+        type: physical
+        slot: 2
+      - id: i4
+        label: Ethernet0/3
+        mac_address: null
+        type: physical
+        slot: 3
+  - boot_disk_size: null
+    configuration:
+      - name: ios_config.txt
+        content: |-
+          hostname S2-S2S-ASA
+          !
+          vrf definition mgmt
+           !
+           address-family ipv4
+           exit-address-family
+          !
+          logging console
+          ipv6 unicast-routing
+          !
+          !enable password cisco
+          enable secret cisco
+          boot-start-marker
+          boot-end-marker
+          !
+          !
+          no aaa new-model
+          !
+          !
+          service timestamps debug datetime msec
+          service timestamps log datetime msec
+          no service password-encryption
+          no service config
+          !
+          ip classless
+          ip subnet-zero
+          no ip domain lookup
+          ip domain name virl.info
+          !
+          ip ssh server algorithm authentication password
+          username cisco privilege 15 secret cisco
+          line con 0
+           exec-timeout 0 0
+           terminal width 132
+           privilege level 15
+           history size 200
+           logging synchronous
+           terminal width 132
+           transport preferred none
+           stopbits 1
+          line vty 0 4
+           login local
+           logging synchronous
+           terminal width 132
+           exec-timeout 0 0
+           transport input telnet ssh
+           transport output telnet ssh
+          !
+          cdp run
+          !
+          !
+          interface Loopback0
+              description USED FOR BGP,LOGGING,OSPF,SSH,SNMP,TACACS+,MPLS,LISP
+              ip address 172.17.1.27 255.255.255.255
+              no shutdown
+              no cdp enable
+          interface Ethernet0/0
+              description out-of-band interface
+              vrf forwarding mgmt
+              ip address 192.168.255.27 255.255.255.0
+              no shutdown
+          interface Ethernet0/1-3
+              no ip address
+              shutdown
+          !
+          ip http secure-server
+          ip scp server enable
+          ip route vrf mgmt 10.0.1.0 255.255.255.0 192.168.255.1
+          !
+          ! overwrite default banners
+          no banner exec
+          no banner incoming
+          no banner login
+          !
+          crypto key generate rsa mod 3072
+          !
+          end
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n13
+    image_definition: null
+    label: S2-S2S-ASA
+    node_definition: iol-xe
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: -560
+    y: 680
+    interfaces:
+      - id: i0
+        label: Loopback0
+        mac_address: null
+        type: loopback
+      - id: i1
+        label: Ethernet0/0
+        mac_address: null
+        type: physical
+        slot: 0
+      - id: i2
+        label: Ethernet0/1
+        mac_address: null
+        type: physical
+        slot: 1
+      - id: i3
+        label: Ethernet0/2
+        mac_address: null
+        type: physical
+        slot: 2
+      - id: i4
+        label: Ethernet0/3
+        mac_address: null
+        type: physical
+        slot: 3
+  - boot_disk_size: null
+    configuration:
+      - name: ios_config.txt
+        content: |-
+          hostname S3-S2S-ASA
+          !
+          vrf definition mgmt
+           !
+           address-family ipv4
+           exit-address-family
+          !
+          logging console
+          ipv6 unicast-routing
+          !
+          !enable password cisco
+          enable secret cisco
+          boot-start-marker
+          boot-end-marker
+          !
+          !
+          no aaa new-model
+          !
+          !
+          service timestamps debug datetime msec
+          service timestamps log datetime msec
+          no service password-encryption
+          no service config
+          !
+          ip classless
+          ip subnet-zero
+          no ip domain lookup
+          ip domain name virl.info
+          !
+          ip ssh server algorithm authentication password
+          username cisco privilege 15 secret cisco
+          line con 0
+           exec-timeout 0 0
+           terminal width 132
+           privilege level 15
+           history size 200
+           logging synchronous
+           terminal width 132
+           transport preferred none
+           stopbits 1
+          line vty 0 4
+           login local
+           logging synchronous
+           terminal width 132
+           exec-timeout 0 0
+           transport input telnet ssh
+           transport output telnet ssh
+          !
+          cdp run
+          !
+          !
+          interface Loopback0
+              description USED FOR BGP,LOGGING,OSPF,SSH,SNMP,TACACS+,MPLS,LISP
+              ip address 172.17.1.28 255.255.255.255
+              no shutdown
+              no cdp enable
+          interface Ethernet0/0
+              description out-of-band interface
+              vrf forwarding mgmt
+              ip address 192.168.255.28 255.255.255.0
+              no shutdown
+          interface Ethernet0/1-3
+              no ip address
+              shutdown
+          !
+          ip http secure-server
+          ip scp server enable
+          ip route vrf mgmt 10.0.1.0 255.255.255.0 192.168.255.1
+          !
+          ! overwrite default banners
+          no banner exec
+          no banner incoming
+          no banner login
+          !
+          crypto key generate rsa mod 3072
+          !
+          end
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n14
+    image_definition: null
+    label: S3-S2S-ASA
+    node_definition: iol-xe
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: -400
+    y: 680
+    interfaces:
+      - id: i0
+        label: Loopback0
+        mac_address: null
+        type: loopback
+      - id: i1
+        label: Ethernet0/0
+        mac_address: null
+        type: physical
+        slot: 0
+      - id: i2
+        label: Ethernet0/1
+        mac_address: null
+        type: physical
+        slot: 1
+      - id: i3
+        label: Ethernet0/2
+        mac_address: null
+        type: physical
+        slot: 2
+      - id: i4
+        label: Ethernet0/3
+        mac_address: null
+        type: physical
+        slot: 3
+  - boot_disk_size: null
+    configuration:
+      - name: ios_config.txt
+        content: |-
+          hostname S4-S2S-ASA
+          !
+          vrf definition mgmt
+           !
+           address-family ipv4
+           exit-address-family
+          !
+          logging console
+          ipv6 unicast-routing
+          !
+          !enable password cisco
+          enable secret cisco
+          boot-start-marker
+          boot-end-marker
+          !
+          !
+          no aaa new-model
+          !
+          !
+          service timestamps debug datetime msec
+          service timestamps log datetime msec
+          no service password-encryption
+          no service config
+          !
+          ip classless
+          ip subnet-zero
+          no ip domain lookup
+          ip domain name virl.info
+          !
+          ip ssh server algorithm authentication password
+          username cisco privilege 15 secret cisco
+          line con 0
+           exec-timeout 0 0
+           terminal width 132
+           privilege level 15
+           history size 200
+           logging synchronous
+           terminal width 132
+           transport preferred none
+           stopbits 1
+          line vty 0 4
+           login local
+           logging synchronous
+           terminal width 132
+           exec-timeout 0 0
+           transport input telnet ssh
+           transport output telnet ssh
+          !
+          cdp run
+          !
+          !
+          interface Loopback0
+              description USED FOR BGP,LOGGING,OSPF,SSH,SNMP,TACACS+,MPLS,LISP
+              ip address 172.17.1.29 255.255.255.255
+              no shutdown
+              no cdp enable
+          interface Ethernet0/0
+              description out-of-band interface
+              vrf forwarding mgmt
+              ip address 192.168.255.29 255.255.255.0
+              no shutdown
+          interface Ethernet0/1-3
+              no ip address
+              shutdown
+          !
+          ip http secure-server
+          ip scp server enable
+          ip route vrf mgmt 10.0.1.0 255.255.255.0 192.168.255.1
+          !
+          ! overwrite default banners
+          no banner exec
+          no banner incoming
+          no banner login
+          !
+          crypto key generate rsa mod 3072
+          !
+          end
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n15
+    image_definition: null
+    label: S4-S2S-ASA
+    node_definition: iol-xe
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: -240
+    y: 680
+    interfaces:
+      - id: i0
+        label: Loopback0
+        mac_address: null
+        type: loopback
+      - id: i1
+        label: Ethernet0/0
+        mac_address: null
+        type: physical
+        slot: 0
+      - id: i2
+        label: Ethernet0/1
+        mac_address: null
+        type: physical
+        slot: 1
+      - id: i3
+        label: Ethernet0/2
+        mac_address: null
+        type: physical
+        slot: 2
+      - id: i4
+        label: Ethernet0/3
+        mac_address: null
+        type: physical
+        slot: 3
+  - boot_disk_size: null
+    configuration:
+      - name: node.cfg
+        content: |-
+          hostname destination_srv
+          USERNAME=cisco
+          PASSWORD=cisco
+
+          cat <<EOF1 > /etc/network/interfaces
+          auto lo
+          iface lo inet loopback
+
+          auto eth0
+          iface eth0 inet static
+              address 192.168.255.30
+              netmask 255.255.255.0
+              gateway 192.168.255.1
+          EOF1
+
+          cat <<EOF2 > /etc/resolv.conf
+          nameserver 1.1.1.1
+          nameserver 8.8.8.8
+          EOF2
+
+          # Bring up the eth0 interface using ip link
+          ip link set eth0 up
+
+          # restart networking service
+          service networking restart
+
+          # install Python3
+          apk update
+          apk add python3
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n16
+    image_definition: null
+    label: destination_srv
+    node_definition: alpine
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: -640
+    y: 0
+    interfaces:
+      - id: i0
+        label: eth0
+        mac_address: null
+        type: physical
+        slot: 0
+      - id: i1
+        label: eth1
+        mac_address: null
+        type: physical
+        slot: 1
+  - boot_disk_size: null
+    configuration:
+      - name: node.cfg
+        content: |-
+          hostname clt1_s2
+          USERNAME=cisco
+          PASSWORD=cisco
+
+          cat <<EOF1 > /etc/network/interfaces
+          auto lo
+          iface lo inet loopback
+
+          auto eth0
+          iface eth0 inet static
+              address 192.168.255.31
+              netmask 255.255.255.0
+              gateway 192.168.255.1
+          EOF1
+
+          cat <<EOF2 > /etc/resolv.conf
+          nameserver 1.1.1.1
+          nameserver 8.8.8.8
+          EOF2
+
+          # Bring up the eth0 interface using ip link
+          ip link set eth0 up
+
+          # restart networking service
+          service networking restart
+
+          # install Python3
+          apk update
+          apk add python3
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n17
+    image_definition: null
+    label: clt1_s2
+    node_definition: alpine
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: -560
+    y: 840
+    interfaces:
+      - id: i0
+        label: eth0
+        mac_address: null
+        type: physical
+        slot: 0
+      - id: i1
+        label: eth1
+        mac_address: null
+        type: physical
+        slot: 1
+  - boot_disk_size: null
+    configuration:
+      - name: node.cfg
+        content: |-
+          hostname clt2_s3
+          USERNAME=cisco
+          PASSWORD=cisco
+
+          cat <<EOF1 > /etc/network/interfaces
+          auto lo
+          iface lo inet loopback
+
+          auto eth0
+          iface eth0 inet static
+              address 192.168.255.32
+              netmask 255.255.255.0
+              gateway 192.168.255.1
+          EOF1
+
+          cat <<EOF2 > /etc/resolv.conf
+          nameserver 1.1.1.1
+          nameserver 8.8.8.8
+          EOF2
+
+          # Bring up the eth0 interface using ip link
+          ip link set eth0 up
+
+          # restart networking service
+          service networking restart
+
+          # install Python3
+          apk update
+          apk add python3
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n18
+    image_definition: null
+    label: clt2_s3
+    node_definition: alpine
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: -400
+    y: 840
+    interfaces:
+      - id: i0
+        label: eth0
+        mac_address: null
+        type: physical
+        slot: 0
+      - id: i1
+        label: eth1
+        mac_address: null
+        type: physical
+        slot: 1
+  - boot_disk_size: null
+    configuration:
+      - name: node.cfg
+        content: |-
+          hostname clt3_s4
+          USERNAME=cisco
+          PASSWORD=cisco
+
+          cat <<EOF1 > /etc/network/interfaces
+          auto lo
+          iface lo inet loopback
+
+          auto eth0
+          iface eth0 inet static
+              address 192.168.255.33
+              netmask 255.255.255.0
+              gateway 192.168.255.1
+          EOF1
+
+          cat <<EOF2 > /etc/resolv.conf
+          nameserver 1.1.1.1
+          nameserver 8.8.8.8
+          EOF2
+
+          # Bring up the eth0 interface using ip link
+          ip link set eth0 up
+
+          # restart networking service
+          service networking restart
+
+          # install Python3
+          apk update
+          apk add python3
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n19
+    image_definition: null
+    label: clt3_s4
+    node_definition: alpine
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: -240
+    y: 840
+    interfaces:
+      - id: i0
+        label: eth0
+        mac_address: null
+        type: physical
+        slot: 0
+      - id: i1
+        label: eth1
+        mac_address: null
+        type: physical
+        slot: 1
+  - boot_disk_size: null
+    configuration:
+      - name: node.cfg
+        content: |-
+          hostname clt4_s1
+          USERNAME=cisco
+          PASSWORD=cisco
+
+          cat <<EOF1 > /etc/network/interfaces
+          auto lo
+          iface lo inet loopback
+
+          auto eth0
+          iface eth0 inet static
+              address 192.168.255.34
+              netmask 255.255.255.0
+              gateway 192.168.255.1
+          EOF1
+
+          cat <<EOF2 > /etc/resolv.conf
+          nameserver 1.1.1.1
+          nameserver 8.8.8.8
+          EOF2
+
+          # Bring up the eth0 interface using ip link
+          ip link set eth0 up
+
+          # restart networking service
+          service networking restart
+
+          # install Python3
+          apk update
+          apk add python3
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n20
+    image_definition: null
+    label: clt4_s1
+    node_definition: alpine
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: -640
+    y: -160
+    interfaces:
+      - id: i0
+        label: eth0
+        mac_address: null
+        type: physical
+        slot: 0
+      - id: i1
+        label: eth1
+        mac_address: null
+        type: physical
+        slot: 1
+  - boot_disk_size: null
+    configuration:
+      - name: default
+        content: bridge3
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: true
+    id: n21
+    image_definition: null
+    label: mgmt
+    node_definition: external_connector
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: 40
+    y: -520
+    interfaces:
+      - id: i0
+        label: port
+        mac_address: null
+        type: physical
+        slot: 0
+  - boot_disk_size: null
+    configuration: []
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: true
+    id: n22
+    image_definition: null
+    label: usw1
+    node_definition: unmanaged_switch
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: -120
+    y: -520
+    interfaces:
+      - id: i0
+        label: port0
+        mac_address: null
+        type: physical
+        slot: 0
+      - id: i1
+        label: port1
+        mac_address: null
+        type: physical
+        slot: 1
+      - id: i2
+        label: port2
+        mac_address: null
+        type: physical
+        slot: 2
+      - id: i3
+        label: port3
+        mac_address: null
+        type: physical
+        slot: 3
+      - id: i4
+        label: port4
+        mac_address: null
+        type: physical
+        slot: 4
+      - id: i5
+        label: port5
+        mac_address: null
+        type: physical
+        slot: 5
+      - id: i6
+        label: port6
+        mac_address: null
+        type: physical
+        slot: 6
+      - id: i7
+        label: port7
+        mac_address: null
+        type: physical
+        slot: 7
+      - id: i8
+        label: port8
+        mac_address: null
+        type: physical
+        slot: 8
+      - id: i9
+        label: port9
+        mac_address: null
+        type: physical
+        slot: 9
+      - id: i10
+        label: port10
+        mac_address: null
+        type: physical
+        slot: 10
+      - id: i11
+        label: port11
+        mac_address: null
+        type: physical
+        slot: 11
+      - id: i12
+        label: port12
+        mac_address: null
+        type: physical
+        slot: 12
+      - id: i13
+        label: port13
+        mac_address: null
+        type: physical
+        slot: 13
+      - id: i14
+        label: port14
+        mac_address: null
+        type: physical
+        slot: 14
+      - id: i15
+        label: port15
+        mac_address: null
+        type: physical
+        slot: 15
+      - id: i16
+        label: port16
+        mac_address: null
+        type: physical
+        slot: 16
+      - id: i17
+        label: port17
+        mac_address: null
+        type: physical
+        slot: 17
+      - id: i18
+        label: port18
+        mac_address: null
+        type: physical
+        slot: 18
+      - id: i19
+        label: port19
+        mac_address: null
+        type: physical
+        slot: 19
+      - id: i20
+        label: port20
+        mac_address: null
+        type: physical
+        slot: 20
+      - id: i21
+        label: port21
+        mac_address: null
+        type: physical
+        slot: 21
+      - id: i22
+        label: port22
+        mac_address: null
+        type: physical
+        slot: 22
+      - id: i23
+        label: port23
+        mac_address: null
+        type: physical
+        slot: 23
+      - id: i24
+        label: port24
+        mac_address: null
+        type: physical
+        slot: 24
+      - id: i25
+        label: port25
+        mac_address: null
+        type: physical
+        slot: 25
+      - id: i26
+        label: port26
+        mac_address: null
+        type: physical
+        slot: 26
+  - boot_disk_size: null
+    configuration:
+      - name: node.cfg
+        content: |-
+          hostname source_srv
+          USERNAME=cisco
+          PASSWORD=cisco
+
+          cat <<EOF1 > /etc/network/interfaces
+          auto lo
+          iface lo inet loopback
+
+          auto eth0
+          iface eth0 inet static
+              address 192.168.255.35
+              netmask 255.255.255.0
+              gateway 192.168.255.1
+          EOF1
+
+          cat <<EOF2 > /etc/resolv.conf
+          nameserver 1.1.1.1
+          nameserver 8.8.8.8
+          EOF2
+
+          # Bring up the eth0 interface using ip link
+          ip link set eth0 up
+
+          # restart networking service
+          service networking restart
+
+          # install Python3
+          apk update
+          apk add python3
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n23
+    image_definition: null
+    label: source_srv
+    node_definition: alpine
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: 440
+    y: 40
+    interfaces:
+      - id: i0
+        label: eth0
+        mac_address: null
+        type: physical
+        slot: 0
+      - id: i1
+        label: eth1
+        mac_address: null
+        type: physical
+        slot: 1
+  - boot_disk_size: null
+    configuration:
+      - name: ios_config.txt
+        content: |-
+          hostname MPLS-Cloud
+          !
+          vrf definition mgmt
+           !
+           address-family ipv4
+           exit-address-family
+          !
+          logging console
+          ipv6 unicast-routing
+          !
+          !enable password cisco
+          enable secret cisco
+          boot-start-marker
+          boot-end-marker
+          !
+          !
+          no aaa new-model
+          !
+          !
+          service timestamps debug datetime msec
+          service timestamps log datetime msec
+          no service password-encryption
+          no service config
+          !
+          ip classless
+          ip subnet-zero
+          no ip domain lookup
+          ip domain name virl.info
+          !
+          ip ssh server algorithm authentication password
+          username cisco privilege 15 secret cisco
+          line con 0
+           exec-timeout 0 0
+           terminal width 132
+           privilege level 15
+           history size 200
+           logging synchronous
+           terminal width 132
+           transport preferred none
+           stopbits 1
+          line vty 0 4
+           login local
+           logging synchronous
+           terminal width 132
+           exec-timeout 0 0
+           transport input telnet ssh
+           transport output telnet ssh
+          !
+          cdp run
+          !
+          !
+          interface Loopback0
+              description USED FOR BGP,LOGGING,OSPF,SSH,SNMP,TACACS+,MPLS,LISP
+              ip address 172.17.1.36 255.255.255.255
+              no shutdown
+              no cdp enable
+          interface Ethernet0/0
+              description out-of-band interface
+              vrf forwarding mgmt
+              ip address 192.168.255.36 255.255.255.0
+              no shutdown
+          interface Ethernet0/1-3
+              no ip address
+              shutdown
+          !
+          ip http secure-server
+          ip scp server enable
+          ip route vrf mgmt 10.0.1.0 255.255.255.0 192.168.255.1
+          !
+          ! overwrite default banners
+          no banner exec
+          no banner incoming
+          no banner login
+          !
+          crypto key generate rsa mod 3072
+          !
+          end
+    cpu_limit: null
+    cpus: null
+    data_volume: null
+    hide_links: false
+    id: n24
+    image_definition: null
+    label: MPLS-Cloud
+    node_definition: iol-xe
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: -400
+    y: 520
+    interfaces:
+      - id: i0
+        label: Loopback0
+        mac_address: null
+        type: loopback
+      - id: i1
+        label: Ethernet0/0
+        mac_address: null
+        type: physical
+        slot: 0
+      - id: i2
+        label: Ethernet0/1
+        mac_address: null
+        type: physical
+        slot: 1
+      - id: i3
+        label: Ethernet0/2
+        mac_address: null
+        type: physical
+        slot: 2
+      - id: i4
+        label: Ethernet0/3
+        mac_address: null
+        type: physical
+        slot: 3
+      - id: i5
+        label: Ethernet1/0
+        mac_address: null
+        type: physical
+        slot: 4
+  - boot_disk_size: null
+    configuration:
+      - name: nxos_config.txt
+        content: |-
+          hostname L1109
+          vdc L1109 id 1
+            limit-resource vlan minimum 16 maximum 4094
+            limit-resource vrf minimum 2 maximum 4096
+            limit-resource port-channel minimum 0 maximum 511
+            limit-resource u4route-mem minimum 248 maximum 248
+            limit-resource u6route-mem minimum 96 maximum 96
+            limit-resource m4route-mem minimum 58 maximum 58
+            limit-resource m6route-mem minimum 8 maximum 8
+
+          feature telnet
+          feature scp-server
+          feature interface-vlan
+
+          no password strength-check
+          username admin password cisco role network-admin
+          username adminbackup password 5 ! role network-operator
+          username adminbackup passphrase lifetime 99999 warntime 14 gracetime 3
+          username cisco password cisco role network-admin
+          username lab password 5 $1$buoy/oqy$.EXQz8rCn72ii8qtdldj00 role network-admin
+          username lab passphrase lifetime 99999 warntime 14 gracetime 3
+          no ip domain-lookup
+          ip domain-name virl.info
+          system default switchport
+          no logging event trunk-status enable
+          system jumbomtu 9216
+          copp profile strict
+
+
+          vlan dot1Q tag native
+
+          vlan 1
+
+          cdp enable
+          vrf context management
+           ip route 10.0.1.0/24 192.168.255.1
+          hardware access-list tcam region racl 512
+          hardware access-list tcam region arp-ether 256 double-wide
+          hardware forwarding unicast trace
+
+
+          interface vlan1
+            shutdown
+            no description
+            no ip address
+
+          interface Ethernet1/1 - 64
+            no description
+            no switchport
+            shutdown
+
+          interface mgmt0
+           no shutdown
+           description to mgmt
+           duplex full
+           no cdp
+           vrf member management
+           ip address 192.168.255.18 255.255.255.0
+
+          interface loopback0
+            description USED FOR BGP,LOGGING,OSPF,SSH,SNMP,TACACS+,MPLS,LISP
+            ip address 172.17.1.18 255.255.255.255
+            no shutdown
+
+          line console
+            exec-timeout 0
+            terminal width 132
+          line vty
+            exec-timeout 0
+            terminal width 132
+          boot nxos bootflash:/nxos.9.3.6.bin sup-1
+
+          logging console 7
+          logging monitor 7
+    cpu_limit: null
+    cpus: 4
+    data_volume: null
+    hide_links: false
+    id: n25
+    image_definition: nxosv9300-10-6-2-f
+    label: L1109
+    node_definition: nxosv9000
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: -40
+    y: -160
+    interfaces:
+      - id: i0
+        label: Loopback0
+        mac_address: null
+        type: loopback
+      - id: i1
+        label: mgmt0
+        mac_address: null
+        type: physical
+        slot: 0
+      - id: i2
+        label: Ethernet1/1
+        mac_address: null
+        type: physical
+        slot: 1
+      - id: i3
+        label: Ethernet1/2
+        mac_address: null
+        type: physical
+        slot: 2
+      - id: i4
+        label: Ethernet1/3
+        mac_address: null
+        type: physical
+        slot: 3
+      - id: i5
+        label: Ethernet1/4
+        mac_address: null
+        type: physical
+        slot: 4
+      - id: i6
+        label: Ethernet1/5
+        mac_address: null
+        type: physical
+        slot: 5
+      - id: i7
+        label: Ethernet1/6
+        mac_address: null
+        type: physical
+        slot: 6
+      - id: i8
+        label: Ethernet1/7
+        mac_address: null
+        type: physical
+        slot: 7
+      - id: i9
+        label: Ethernet1/8
+        mac_address: null
+        type: physical
+        slot: 8
+  - boot_disk_size: null
+    configuration:
+      - name: nxos_config.txt
+        content: |-
+          hostname L1110
+          vdc L1110 id 1
+            limit-resource vlan minimum 16 maximum 4094
+            limit-resource vrf minimum 2 maximum 4096
+            limit-resource port-channel minimum 0 maximum 511
+            limit-resource u4route-mem minimum 248 maximum 248
+            limit-resource u6route-mem minimum 96 maximum 96
+            limit-resource m4route-mem minimum 58 maximum 58
+            limit-resource m6route-mem minimum 8 maximum 8
+
+          feature telnet
+          feature scp-server
+          feature interface-vlan
+
+          no password strength-check
+          username admin password cisco role network-admin
+          username adminbackup password 5 ! role network-operator
+          username adminbackup passphrase lifetime 99999 warntime 14 gracetime 3
+          username cisco password cisco role network-admin
+          username lab password 5 $1$buoy/oqy$.EXQz8rCn72ii8qtdldj00 role network-admin
+          username lab passphrase lifetime 99999 warntime 14 gracetime 3
+          no ip domain-lookup
+          ip domain-name virl.info
+          system default switchport
+          no logging event trunk-status enable
+          system jumbomtu 9216
+          copp profile strict
+
+
+          vlan dot1Q tag native
+
+          vlan 1
+
+          cdp enable
+          vrf context management
+           ip route 10.0.1.0/24 192.168.255.1
+          hardware access-list tcam region racl 512
+          hardware access-list tcam region arp-ether 256 double-wide
+          hardware forwarding unicast trace
+
+
+          interface vlan1
+            shutdown
+            no description
+            no ip address
+
+          interface Ethernet1/1 - 64
+            no description
+            no switchport
+            shutdown
+
+          interface mgmt0
+           no shutdown
+           description to mgmt
+           duplex full
+           no cdp
+           vrf member management
+           ip address 192.168.255.19 255.255.255.0
+
+          interface loopback0
+            description USED FOR BGP,LOGGING,OSPF,SSH,SNMP,TACACS+,MPLS,LISP
+            ip address 172.17.1.19 255.255.255.255
+            no shutdown
+
+          line console
+            exec-timeout 0
+            terminal width 132
+          line vty
+            exec-timeout 0
+            terminal width 132
+          boot nxos bootflash:/nxos.9.3.6.bin sup-1
+
+          logging console 7
+          logging monitor 7
+    cpu_limit: null
+    cpus: 4
+    data_volume: null
+    hide_links: false
+    id: n26
+    image_definition: nxosv9300-10-6-2-f
+    label: L1110
+    node_definition: nxosv9000
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: 200
+    y: -160
+    interfaces:
+      - id: i0
+        label: Loopback0
+        mac_address: null
+        type: loopback
+      - id: i1
+        label: mgmt0
+        mac_address: null
+        type: physical
+        slot: 0
+      - id: i2
+        label: Ethernet1/1
+        mac_address: null
+        type: physical
+        slot: 1
+      - id: i3
+        label: Ethernet1/2
+        mac_address: null
+        type: physical
+        slot: 2
+      - id: i4
+        label: Ethernet1/3
+        mac_address: null
+        type: physical
+        slot: 3
+      - id: i5
+        label: Ethernet1/4
+        mac_address: null
+        type: physical
+        slot: 4
+      - id: i6
+        label: Ethernet1/5
+        mac_address: null
+        type: physical
+        slot: 5
+      - id: i7
+        label: Ethernet1/6
+        mac_address: null
+        type: physical
+        slot: 6
+      - id: i8
+        label: Ethernet1/7
+        mac_address: null
+        type: physical
+        slot: 7
+      - id: i9
+        label: Ethernet1/8
+        mac_address: null
+        type: physical
+        slot: 8
+  - boot_disk_size: null
+    configuration:
+      - name: nxos_config.txt
+        content: |-
+          hostname S1201
+          vdc S1201 id 1
+            limit-resource vlan minimum 16 maximum 4094
+            limit-resource vrf minimum 2 maximum 4096
+            limit-resource port-channel minimum 0 maximum 511
+            limit-resource u4route-mem minimum 248 maximum 248
+            limit-resource u6route-mem minimum 96 maximum 96
+            limit-resource m4route-mem minimum 58 maximum 58
+            limit-resource m6route-mem minimum 8 maximum 8
+
+          feature telnet
+          feature scp-server
+          feature interface-vlan
+
+          no password strength-check
+          username admin password cisco role network-admin
+          username adminbackup password 5 ! role network-operator
+          username adminbackup passphrase lifetime 99999 warntime 14 gracetime 3
+          username cisco password cisco role network-admin
+          username lab password 5 $1$buoy/oqy$.EXQz8rCn72ii8qtdldj00 role network-admin
+          username lab passphrase lifetime 99999 warntime 14 gracetime 3
+          no ip domain-lookup
+          ip domain-name virl.info
+          system default switchport
+          no logging event trunk-status enable
+          system jumbomtu 9216
+          copp profile strict
+
+
+          vlan dot1Q tag native
+
+          vlan 1
+
+          cdp enable
+          vrf context management
+           ip route 10.0.1.0/24 192.168.255.1
+
+
+          interface vlan1
+            shutdown
+            no description
+            no ip address
+
+          interface Ethernet1/1 - 64
+            no description
+            no switchport
+            shutdown
+
+          interface mgmt0
+           no shutdown
+           description to mgmt
+           duplex full
+           no cdp
+           vrf member management
+           ip address 192.168.255.17 255.255.255.0
+
+          interface loopback0
+            description USED FOR BGP,LOGGING,OSPF,SSH,SNMP,TACACS+,MPLS,LISP
+            ip address 172.17.1.17 255.255.255.255
+            no shutdown
+
+          line console
+            exec-timeout 0
+            terminal width 132
+          line vty
+            exec-timeout 0
+            terminal width 132
+
+          logging console 7
+          logging monitor 7
+    cpu_limit: null
+    cpus: 4
+    data_volume: null
+    hide_links: false
+    id: n27
+    image_definition: nxosv9500-10-5-2f
+    label: S1201
+    node_definition: nxosv9000
+    parameters: {}
+    priority: null
+    pyats:
+      username: null
+      password: null
+      enable_password: null
+    ram: null
+    tags: []
+    x: -120
+    y: -360
+    interfaces:
+      - id: i0
+        label: Loopback0
+        mac_address: null
+        type: loopback
+      - id: i1
+        label: mgmt0
+        mac_address: null
+        type: physical
+        slot: 0
+      - id: i2
+        label: Ethernet1/1
+        mac_address: null
+        type: physical
+        slot: 1
+      - id: i3
+        label: Ethernet1/2
+        mac_address: null
+        type: physical
+        slot: 2
+      - id: i4
+        label: Ethernet1/3
+        mac_address: null
+        type: physical
+        slot: 3
+      - id: i5
+        label: Ethernet1/4
+        mac_address: null
+        type: physical
+        slot: 4
+links:
+  - id: l0
+    n1: n22
+    n2: n21
+    i1: i0
+    i2: i0
+    conditioning: {}
+    label: usw1-port0<->mgmt-port
+  - id: l1
+    n1: n0
+    n2: n22
+    i1: i1
+    i2: i1
+    conditioning: {}
+    label: L1103-mgmt0<->usw1-port1
+  - id: l2
+    n1: n1
+    n2: n22
+    i1: i1
+    i2: i2
+    conditioning: {}
+    label: L1104-mgmt0<->usw1-port2
+  - id: l3
+    n1: n2
+    n2: n22
+    i1: i1
+    i2: i3
+    conditioning: {}
+    label: SW5-mgmt0<->usw1-port3
+  - id: l4
+    n1: n3
+    n2: n22
+    i1: i1
+    i2: i4
+    conditioning: {}
+    label: SW6-mgmt0<->usw1-port4
+  - id: l5
+    n1: n4
+    n2: n22
+    i1: i1
+    i2: i5
+    conditioning: {}
+    label: SW1-mgmt0<->usw1-port5
+  - id: l6
+    n1: n5
+    n2: n22
+    i1: i1
+    i2: i6
+    conditioning: {}
+    label: SW2-mgmt0<->usw1-port6
+  - id: l7
+    n1: n6
+    n2: n22
+    i1: i1
+    i2: i10
+    conditioning: {}
+    label: SW1-IOL-Ethernet0/0<->usw1-port10
+  - id: l8
+    n1: n7
+    n2: n22
+    i1: i1
+    i2: i11
+    conditioning: {}
+    label: SW2-IOL-Ethernet0/0<->usw1-port11
+  - id: l9
+    n1: n8
+    n2: n22
+    i1: i1
+    i2: i12
+    conditioning: {}
+    label: PA-FW1-Ethernet0/0<->usw1-port12
+  - id: l10
+    n1: n9
+    n2: n22
+    i1: i1
+    i2: i13
+    conditioning: {}
+    label: PA-FW2-Ethernet0/0<->usw1-port13
+  - id: l11
+    n1: n10
+    n2: n22
+    i1: i1
+    i2: i14
+    conditioning: {}
+    label: ASA1-Ethernet0/0<->usw1-port14
+  - id: l12
+    n1: n11
+    n2: n22
+    i1: i1
+    i2: i15
+    conditioning: {}
+    label: ASA2-Ethernet0/0<->usw1-port15
+  - id: l13
+    n1: n12
+    n2: n22
+    i1: i1
+    i2: i16
+    conditioning: {}
+    label: S1-S2S-ASA-Ethernet0/0<->usw1-port16
+  - id: l14
+    n1: n13
+    n2: n22
+    i1: i1
+    i2: i17
+    conditioning: {}
+    label: S2-S2S-ASA-Ethernet0/0<->usw1-port17
+  - id: l15
+    n1: n14
+    n2: n22
+    i1: i1
+    i2: i18
+    conditioning: {}
+    label: S3-S2S-ASA-Ethernet0/0<->usw1-port18
+  - id: l16
+    n1: n15
+    n2: n22
+    i1: i1
+    i2: i19
+    conditioning: {}
+    label: S4-S2S-ASA-Ethernet0/0<->usw1-port19
+  - id: l17
+    n1: n16
+    n2: n22
+    i1: i0
+    i2: i20
+    conditioning: {}
+    label: destination_srv-eth0<->usw1-port20
+  - id: l18
+    n1: n17
+    n2: n22
+    i1: i0
+    i2: i21
+    conditioning: {}
+    label: clt1_s2-eth0<->usw1-port21
+  - id: l19
+    n1: n18
+    n2: n22
+    i1: i0
+    i2: i22
+    conditioning: {}
+    label: clt2_s3-eth0<->usw1-port22
+  - id: l20
+    n1: n19
+    n2: n22
+    i1: i0
+    i2: i23
+    conditioning: {}
+    label: clt3_s4-eth0<->usw1-port23
+  - id: l21
+    n1: n20
+    n2: n22
+    i1: i0
+    i2: i24
+    conditioning: {}
+    label: clt4_s1-eth0<->usw1-port24
+  - id: l22
+    n1: n2
+    n2: n3
+    i1: i2
+    i2: i2
+    conditioning: {}
+    label: SW5-Ethernet1/1<->SW6-Ethernet1/1
+  - id: l23
+    n1: n2
+    n2: n3
+    i1: i3
+    i2: i3
+    conditioning: {}
+    label: SW5-Ethernet1/2<->SW6-Ethernet1/2
+  - id: l24
+    n1: n2
+    n2: n0
+    i1: i4
+    i2: i3
+    conditioning: {}
+    label: SW5-Ethernet1/3<->L1103-Ethernet1/2
+  - id: l25
+    n1: n2
+    n2: n1
+    i1: i5
+    i2: i3
+    conditioning: {}
+    label: SW5-Ethernet1/4<->L1104-Ethernet1/2
+  - id: l26
+    n1: n3
+    n2: n0
+    i1: i4
+    i2: i4
+    conditioning: {}
+    label: SW6-Ethernet1/3<->L1103-Ethernet1/3
+  - id: l27
+    n1: n3
+    n2: n1
+    i1: i5
+    i2: i4
+    conditioning: {}
+    label: SW6-Ethernet1/4<->L1104-Ethernet1/3
+  - id: l28
+    n1: n4
+    n2: n5
+    i1: i2
+    i2: i2
+    conditioning: {}
+    label: SW1-Ethernet1/1<->SW2-Ethernet1/1
+  - id: l29
+    n1: n4
+    n2: n5
+    i1: i3
+    i2: i3
+    conditioning: {}
+    label: SW1-Ethernet1/2<->SW2-Ethernet1/2
+  - id: l30
+    n1: n4
+    n2: n2
+    i1: i4
+    i2: i6
+    conditioning: {}
+    label: SW1-Ethernet1/3<->SW5-Ethernet1/5
+  - id: l31
+    n1: n4
+    n2: n3
+    i1: i5
+    i2: i6
+    conditioning: {}
+    label: SW1-Ethernet1/4<->SW6-Ethernet1/5
+  - id: l32
+    n1: n5
+    n2: n2
+    i1: i4
+    i2: i7
+    conditioning: {}
+    label: SW2-Ethernet1/3<->SW5-Ethernet1/6
+  - id: l33
+    n1: n5
+    n2: n3
+    i1: i5
+    i2: i7
+    conditioning: {}
+    label: SW2-Ethernet1/4<->SW6-Ethernet1/6
+  - id: l34
+    n1: n4
+    n2: n12
+    i1: i6
+    i2: i2
+    conditioning: {}
+    label: SW1-Ethernet1/5<->S1-S2S-ASA-Ethernet0/1
+  - id: l35
+    n1: n8
+    n2: n9
+    i1: i4
+    i2: i4
+    conditioning: {}
+    label: PA-FW1-Ethernet0/3<->PA-FW2-Ethernet0/3
+  - id: l36
+    n1: n10
+    n2: n6
+    i1: i2
+    i2: i4
+    conditioning: {}
+    label: ASA1-Ethernet0/1<->SW1-IOL-Ethernet0/3
+  - id: l37
+    n1: n11
+    n2: n7
+    i1: i2
+    i2: i4
+    conditioning: {}
+    label: ASA2-Ethernet0/1<->SW2-IOL-Ethernet0/3
+  - id: l38
+    n1: n10
+    n2: n11
+    i1: i3
+    i2: i3
+    conditioning: {}
+    label: ASA1-Ethernet0/2<->ASA2-Ethernet0/2
+  - id: l39
+    n1: n16
+    n2: n2
+    i1: i1
+    i2: i8
+    conditioning: {}
+    label: destination_srv-eth1<->SW5-Ethernet1/7
+  - id: l40
+    n1: n20
+    n2: n0
+    i1: i1
+    i2: i5
+    conditioning: {}
+    label: clt4_s1-eth1<->L1103-Ethernet1/4
+  - id: l41
+    n1: n6
+    n2: n7
+    i1: i5
+    i2: i5
+    conditioning: {}
+    label: SW1-IOL-Ethernet1/0<->SW2-IOL-Ethernet1/0
+  - id: l42
+    n1: n6
+    n2: n7
+    i1: i6
+    i2: i6
+    conditioning: {}
+    label: SW1-IOL-Ethernet1/1<->SW2-IOL-Ethernet1/1
+  - id: l43
+    n1: n0
+    n2: n1
+    i1: i6
+    i2: i6
+    conditioning: {}
+    label: L1103-Ethernet1/5<->L1104-Ethernet1/5
+  - id: l44
+    n1: n0
+    n2: n1
+    i1: i7
+    i2: i7
+    conditioning: {}
+    label: L1103-Ethernet1/6<->L1104-Ethernet1/6
+  - id: l45
+    n1: n23
+    n2: n10
+    i1: i1
+    i2: i4
+    conditioning: {}
+    label: alpine-0-eth1<->ASA1-Ethernet0/3
+  - id: l46
+    n1: n23
+    n2: n22
+    i1: i0
+    i2: i25
+    conditioning: {}
+    label: alpine-0-eth0<->usw1-port25
+  - id: l47
+    n1: n24
+    n2: n22
+    i1: i1
+    i2: i26
+    conditioning: {}
+    label: MPLS-Cloud-Ethernet0/0<->usw1-port26
+  - id: l48
+    n1: n24
+    n2: n12
+    i1: i2
+    i2: i3
+    conditioning: {}
+    label: MPLS-Cloud-Ethernet0/1<->S1-S2S-ASA-Ethernet0/2
+  - id: l49
+    n1: n25
+    n2: n22
+    i1: i1
+    i2: i8
+    conditioning: {}
+    label: L1109-mgmt0<->usw1-port8
+  - id: l50
+    n1: n25
+    n2: n8
+    i1: i3
+    i2: i2
+    conditioning: {}
+    label: L1109-Ethernet1/2<->PA-FW1-Ethernet0/1
+  - id: l51
+    n1: n25
+    n2: n8
+    i1: i4
+    i2: i3
+    conditioning: {}
+    label: L1109-Ethernet1/3<->PA-FW1-Ethernet0/2
+  - id: l52
+    n1: n25
+    n2: n6
+    i1: i5
+    i2: i2
+    conditioning: {}
+    label: L1109-Ethernet1/4<->SW1-IOL-Ethernet0/1
+  - id: l53
+    n1: n25
+    n2: n7
+    i1: i6
+    i2: i2
+    conditioning: {}
+    label: L1109-Ethernet1/5<->SW2-IOL-Ethernet0/1
+  - id: l54
+    n1: n26
+    n2: n22
+    i1: i1
+    i2: i9
+    conditioning: {}
+    label: L1110-mgmt0<->usw1-port9
+  - id: l55
+    n1: n26
+    n2: n9
+    i1: i3
+    i2: i2
+    conditioning: {}
+    label: L1110-Ethernet1/2<->PA-FW2-Ethernet0/1
+  - id: l56
+    n1: n26
+    n2: n9
+    i1: i4
+    i2: i3
+    conditioning: {}
+    label: L1110-Ethernet1/3<->PA-FW2-Ethernet0/2
+  - id: l57
+    n1: n26
+    n2: n6
+    i1: i5
+    i2: i3
+    conditioning: {}
+    label: L1110-Ethernet1/4<->SW1-IOL-Ethernet0/2
+  - id: l58
+    n1: n26
+    n2: n7
+    i1: i6
+    i2: i3
+    conditioning: {}
+    label: L1110-Ethernet1/5<->SW2-IOL-Ethernet0/2
+  - id: l59
+    n1: n25
+    n2: n26
+    i1: i7
+    i2: i7
+    conditioning: {}
+    label: L1109-Ethernet1/6<->L1110-Ethernet1/6
+  - id: l60
+    n1: n25
+    n2: n26
+    i1: i8
+    i2: i8
+    conditioning: {}
+    label: L1109-Ethernet1/7<->L1110-Ethernet1/7
+  - id: l61
+    n1: n13
+    n2: n24
+    i1: i2
+    i2: i3
+    conditioning: {}
+    label: S2-S2S-ASA-Ethernet0/1<->MPLS-Cloud-Ethernet0/2
+  - id: l62
+    n1: n14
+    n2: n24
+    i1: i2
+    i2: i4
+    conditioning: {}
+    label: S3-S2S-ASA-Ethernet0/1<->MPLS-Cloud-Ethernet0/3
+  - id: l63
+    n1: n15
+    n2: n24
+    i1: i2
+    i2: i5
+    conditioning: {}
+    label: S4-S2S-ASA-Ethernet0/1<->MPLS-Cloud-Ethernet1/0
+  - id: l64
+    n1: n17
+    n2: n13
+    i1: i1
+    i2: i3
+    conditioning: {}
+    label: clt1_s2-eth1<->S2-S2S-ASA-Ethernet0/2
+  - id: l65
+    n1: n18
+    n2: n14
+    i1: i1
+    i2: i3
+    conditioning: {}
+    label: clt2_s3-eth1<->S3-S2S-ASA-Ethernet0/2
+  - id: l66
+    n1: n19
+    n2: n15
+    i1: i1
+    i2: i3
+    conditioning: {}
+    label: clt3_s4-eth1<->S4-S2S-ASA-Ethernet0/2
+  - id: l67
+    n1: n27
+    n2: n22
+    i1: i1
+    i2: i7
+    conditioning: {}
+    label: S1201-mgmt0<->usw1-port7
+  - id: l68
+    n1: n27
+    n2: n0
+    i1: i2
+    i2: i2
+    conditioning: {}
+    label: S1201-Ethernet1/1<->L1103-Ethernet1/1
+  - id: l69
+    n1: n27
+    n2: n1
+    i1: i3
+    i2: i2
+    conditioning: {}
+    label: S1201-Ethernet1/2<->L1104-Ethernet1/1
+  - id: l70
+    n1: n27
+    n2: n25
+    i1: i4
+    i2: i2
+    conditioning: {}
+    label: S1201-Ethernet1/3<->L1109-Ethernet1/1
+  - id: l71
+    n1: n27
+    n2: n26
+    i1: i5
+    i2: i2
+    conditioning: {}
+    label: S1201-Ethernet1/4<->L1110-Ethernet1/1
+lab:
+  description: ''
+  notes: ''
+  title: external_vpn_connectivity_v2
+  node_staging:
+    enabled: false
+    start_remaining: true
+    abort_on_failure: false
+  version: 0.3.1
